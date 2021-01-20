@@ -27,15 +27,42 @@ import (
 type LogicSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	// Replica count of the DatabaseLogic.
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=10
+	Replicas int `json:"replicas,omitempty"`
+	// EPF application version.
+	// Default value "<empty>".
+	AppVersion string `json:"appVersion,omitempty"`
+	// EPF Database version.
+	// Default value "<empty>".
+	DatabaseVersion string `json:"databaseVersion,omitempty"`
+	// If IsUpdated true, new update available.
+	// Default value "false".
+	IsUpdated bool `json:"isUpdated,omitempty"`
+	// Uses the EPF image for the deployment.
+	// Default value "<empty>".
+	Image string `json:"image,omitempty"`
+	// Uses the side car image deployment.
+	// Default value "<empty>".
+	SideCarImage string `json:"sideCarImage,omitempty"`
+	// True, Sidecar new update available.
+	// Default value "false".
+	SideCarIsUpdated bool `json:"sideCarIsUpdated,omitempty"`
+	//  Use for update the request count
+	// +kubebuilder:validation:Minimum=0
+	RequestCount int `json:"requestCount,omitempty"`
 
-	// Foo is an example field of Logic. Edit Logic_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+
+
 }
 
 // LogicStatus defines the observed state of Logic
 type LogicStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	PodNames          []string `json:"podNames"`
+	AvailableReplicas int32    `json:"availableReplicas"`
 }
 
 // +kubebuilder:object:root=true
