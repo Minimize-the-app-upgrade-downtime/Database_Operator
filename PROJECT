@@ -1,0 +1,11 @@
+domain: example.com
+layout: go.kubebuilder.io/v2
+projectName: database-operator
+repo: github.com/Minimize-the-app-upgrade-downtime/Database_Operator
+resources:
+- group: databaselogic
+  kind: Logic
+  version: v1alpha1
+version: 3-alpha
+plugins:
+  go.sdk.operatorframework.io/v2-alpha: {}

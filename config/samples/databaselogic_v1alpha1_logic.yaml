@@ -1,0 +1,7 @@
+apiVersion: databaselogic.example.com/v1alpha1
+kind: Logic
+metadata:
+  name: logic-sample
+spec:
+  # Add fields here
+  foo: bar
