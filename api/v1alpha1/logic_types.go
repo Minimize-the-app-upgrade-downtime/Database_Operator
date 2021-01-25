@@ -30,7 +30,7 @@ type LogicSpec struct {
 	// Replica count of the DatabaseLogic.
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=10
-	Replicas int `json:"replicas,omitempty"`
+	Size int `json:"size,omitempty"`
 	// EPF application version.
 	// Default value "<empty>".
 	AppVersion string `json:"appVersion,omitempty"`
@@ -52,9 +52,6 @@ type LogicSpec struct {
 	//  Use for update the request count
 	// +kubebuilder:validation:Minimum=0
 	RequestCount int `json:"requestCount,omitempty"`
-
-
-
 }
 
 // LogicStatus defines the observed state of Logic

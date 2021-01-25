@@ -18,8 +18,10 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -36,12 +38,38 @@ type LogicReconciler struct {
 
 // +kubebuilder:rbac:groups=databaselogic.example.com,resources=logics,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=databaselogic.example.com,resources=logics/status,verbs=get;update;patch
-
+// +kubebuilder:rbac:groups=databaselogic.example.com,resources=logics/finalizers,verbs=update
+// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;
 func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("logic", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("logic", req.NamespacedName)
 
-	// your logic here
+	// fetch the spec
+	logic := &databaselogicv1alpha1.Logic{}
+	err := r.Get(ctx, req.NamespacedName, logic)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			log.Info("logic not found.")
+			return ctrl.Result{}, nil
+		}
+		log.Error(err, "Failed to get logic spec")
+	}
+
+	// print logic spec
+	fmt.Println("Print logic input : ")
+	fmt.Printf("Size : %d\n", logic.Spec.Size)
+	fmt.Printf("AppVersion : %s\n", logic.Spec.AppVersion)
+	fmt.Printf("Database Version : %s\n", logic.Spec.DatabaseVersion)
+	fmt.Printf("IsUpdated : %t\n", logic.Spec.IsUpdated)
+	fmt.Printf("Image : %s\n", logic.Spec.Image)
+	fmt.Printf("SideCarImage : %s\n", logic.Spec.SideCarImage)
+	fmt.Printf("SideCarIsUpdated : %t\n", logic.Spec.SideCarIsUpdated)
+	fmt.Printf("Request Count : %d\n", logic.Spec.RequestCount)
+	fmt.Printf("Stutus avilable replicas : %d\n", logic.Status.AvailableReplicas)
+	fmt.Printf("Status pod name : %s\n", logic.Status.PodNames)
+	fmt.Printf("Name : %s\n", logic.Name)
+	fmt.Printf("NameSpace : %s\n", logic.Namespace)
 
 	return ctrl.Result{}, nil
 }

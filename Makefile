@@ -12,7 +12,7 @@ endif
 BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG ?= dboperator:v1
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 
@@ -121,3 +121,27 @@ bundle: manifests kustomize
 .PHONY: bundle-build
 bundle-build:
 	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+# Undeploy controller from the configured Kubernetes cluster
+undeploy:
+	$(KUSTOMIZE) build config/default | kubectl delete -f -
+
+# apply samples kustomize in cluster
+apply:
+	$(KUSTOMIZE) build config/samples | kubectl apply -f - 
+
+# delete samples kustomize in cluster
+unapply:
+	$(KUSTOMIZE) build config/samples | kubectl delete -f - 
+
+# get defult namespace pods
+pod:
+	kubectl get pod
+
+# get defult namespace 	
+namespace:
+	kubectl get namespace
+
+# describe defult namespace pod
+describe:
+	kubectl describe pod
+
