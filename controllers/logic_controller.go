@@ -19,15 +19,23 @@ package controllers
 import (
 	"context"
 	"fmt"
-
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"log"
+	"net/http"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"time"
 
 	databaselogicv1alpha1 "github.com/Minimize-the-app-upgrade-downtime/Database_Operator/api/v1alpha1"
 )
+
+// queue
+var queue []*http.Request
+
+type Handler struct {
+}
 
 // LogicReconciler reconciles a Logic object
 type LogicReconciler struct {
@@ -71,6 +79,10 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	fmt.Printf("Name : %s\n", logic.Name)
 	fmt.Printf("NameSpace : %s\n", logic.Namespace)
 
+	h := &Handler{}
+	http.Handle("/", http.TimeoutHandler(h, 30*time.Second, "500, Internal error"))
+	http.ListenAndServe(":32353", nil)
+
 	return ctrl.Result{}, nil
 }
 
@@ -78,4 +90,18 @@ func (r *LogicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&databaselogicv1alpha1.Logic{}).
 		Complete(r)
+}
+
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	log.Printf("Request pushed into queue[%d]", len(queue))
+	queue = append(queue, r)
+	time.Sleep(30 * time.Second)
+
+	for len(queue) > 0 {
+		log.Println(queue[0])
+		queue = queue[1:]
+	}
+	// This will return http.ErrHandlerTimeout
+	log.Println(w.Write([]byte("body")))
 }
