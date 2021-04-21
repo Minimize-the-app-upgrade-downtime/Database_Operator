@@ -63,6 +63,7 @@ spec:
               description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
                 Important: Run "make" to regenerate code after modifying this file
                 Replica count of the DatabaseLogic.'
+              format: int32
               maximum: 10
               minimum: 1
               type: integer
