@@ -20,7 +20,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/go-logr/logr"
+	"github.com/prometheus/common/log"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -53,104 +55,29 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 	log := r.Log.WithValues("logic", req.NamespacedName)
 
-	// fetch the spec
-	logic := &databaselogicv1alpha1.Logic{}
-	err := r.Get(ctx, req.NamespacedName, logic)
+	// get the Logic
+	logic, err := r.getLogicAPI(ctx, req)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			log.Info("Logic resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "Failed to get logic spec")
+		log.Error(err, "Failed to get Logic")
+		return ctrl.Result{}, err
 	}
+	// print Logic API Value
+	r.logicAPIValuePrint(logic)
 
-	// argument shoud be eqaul to odd
-	fmt.Println()
-	log.Info("Size             : ", " size             : ", logic.Spec.Size)
-	log.Info("AppVersion       : ", " AppVersion       : ", logic.Spec.AppVersion)
-	log.Info("Database Version : ", " Database Version : ", logic.Spec.DatabaseVersion)
-	log.Info("IsUpdated        : ", " IsUpdated        : ", logic.Spec.IsUpdated)
-	log.Info("Image            : ", " Image            : ", logic.Spec.Image)
-	log.Info("SideCarImage     : ", " SideCarImage     : ", logic.Spec.SideCarImage)
-	log.Info("SideCarIsUpdated : ", " SideCarIsUpdated : ", logic.Spec.SideCarIsUpdated)
-	log.Info("Request Count    : ", " Request Count    : ", logic.Spec.RequestCount)
-	log.Info("Stutus avil.rep  : ", " Stutus avila.rep : ", logic.Status.AvailableReplicas)
-	log.Info("Status pod name  : ", " Status pod name  : ", logic.Status.PodNames)
-	log.Info("Name             : ", " Name             : ", logic.Name)
-	log.Info("NameSpace        : ", " NameSpace        : ", logic.Namespace)
-
-	// Check if the deployment already exists, if not create a new deployment.
-	found_dep := &appsv1.Deployment{}
-	// print pretty
-	b, e := json.MarshalIndent(found_dep, "", "  ")
-	if e != nil {
-		fmt.Println(e)
-	}
-
-	fmt.Println("\nappsv1 deployment (found_dep) Before Deployment : \n", string(b))
-
-	err = r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found_dep)
-	fmt.Println("error : ", err)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Define and create a new deployment.
-			log.Info("Create new object")
-			dep := r.deploymentForApp(logic)
-			if err = r.Create(ctx, dep); err != nil {
-				log.Info("Create new object error")
-				return ctrl.Result{}, err
-			}
-			log.Info("Not found and requeue error")
-			return ctrl.Result{Requeue: true}, nil
-		} else {
-			log.Info("error return")
-			return ctrl.Result{}, err
-		}
-	}
-
-	b, e = json.MarshalIndent(found_dep, "", "  ")
-	if e != nil {
-		fmt.Println(e)
-	}
-	fmt.Println("\nappsv1 deployment (found_dep) After Deployment : \n", string(b))
+	// Create deploment
+	r.deploymentProxyApp(ctx, req, logic)
 
 	//service
-	fmt.Println()
-	fmt.Println()
-	found_ser := &corev1.Service{}
-	b, e = json.MarshalIndent(found_ser, "", "  ")
-	if e != nil {
-		fmt.Println(e)
-	}
-	fmt.Println("corev1 service before create: \n", string(b))
-
-	err = r.Get(ctx, types.NamespacedName{Name: "my-service", Namespace: logic.Namespace}, found_ser)
-	fmt.Println("service error", err)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			ser := r.serviceForApp(logic)
-			if err = r.Create(ctx, ser); err != nil {
-				log.Info("Service object create error")
-				return ctrl.Result{}, err
-			}
-			return ctrl.Result{Requeue: true}, nil
-		} else {
-			return ctrl.Result{}, err
-		}
-
-	}
-
-	fmt.Println()
-	found_ser = &corev1.Service{}
-	b, e = json.MarshalIndent(found_ser, "", "  ")
-	if e != nil {
-		fmt.Println(e)
-	}
-	fmt.Println("corev1 service  After create: \n", string(b))
+	r.serviceProxyApp(ctx, req, logic)
 
 	return ctrl.Result{}, nil
 }
 
+// watch the resource
 func (r *LogicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&databaselogicv1alpha1.Logic{}).
@@ -158,7 +85,69 @@ func (r *LogicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-// deployment go proxy
+// Check Logic API
+func (r *LogicReconciler) getLogicAPI(ctx context.Context, req ctrl.Request) (*databaselogicv1alpha1.Logic, error) {
+
+	logic := &databaselogicv1alpha1.Logic{}
+	err := r.Get(ctx, req.NamespacedName, logic)
+	return logic, err
+}
+
+// Print logic API
+func (r *LogicReconciler) logicAPIValuePrint(l *databaselogicv1alpha1.Logic) {
+
+	log := r.Log.WithName("Logic CRD : ")
+	fmt.Println()
+	fmt.Println("Print Logic Resource Values : ")
+	log.Info("Size             : ", " size             : ", l.Spec.Size)
+	log.Info("AppVersion       : ", " AppVersion       : ", l.Spec.AppVersion)
+	log.Info("Database Version : ", " Database Version : ", l.Spec.DatabaseVersion)
+	log.Info("IsUpdated        : ", " IsUpdated        : ", l.Spec.IsUpdated)
+	log.Info("Image            : ", " Image            : ", l.Spec.Image)
+	log.Info("SideCarImage     : ", " SideCarImage     : ", l.Spec.SideCarImage)
+	log.Info("SideCarIsUpdated : ", " SideCarIsUpdated : ", l.Spec.SideCarIsUpdated)
+	log.Info("Request Count    : ", " Request Count    : ", l.Spec.RequestCount)
+	log.Info("Stutus avil.rep  : ", " Stutus avila.rep : ", l.Status.AvailableReplicas)
+	log.Info("Status pod name  : ", " Status pod name  : ", l.Status.PodNames)
+	log.Info("Name             : ", " Name             : ", l.Name)
+	log.Info("NameSpace        : ", " NameSpace        : ", l.Namespace)
+	fmt.Println()
+}
+
+// deployment
+func (r *LogicReconciler) deploymentProxyApp(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
+
+	found_dep := &appsv1.Deployment{}
+	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found_dep)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// Define and create a new deployment.
+			dep := r.deploymentForApp(logic)
+			if err = r.Create(ctx, dep); err != nil {
+				log.Info("Deployment create error", err)
+				return ctrl.Result{}, err
+			}
+			log.Warn("Deployment Requeue")
+			return ctrl.Result{Requeue: true}, nil
+		} else {
+			log.Info("Deployment Get Error", err)
+			return ctrl.Result{}, err
+		}
+	}
+	printDeployment(found_dep)
+	return ctrl.Result{}, nil
+}
+
+// print deployment pretty
+func printDeployment(dep *appsv1.Deployment) {
+	b, err := json.MarshalIndent(dep, "", "  ")
+	if err != nil {
+		log.Error("Service Pretty Convert Error : ", err)
+	}
+	fmt.Println()
+	fmt.Println("Deployment : \n", string(b))
+}
+
 // deploymentForApp returns a app Deployment object.
 func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *appsv1.Deployment {
 	//lbls := labelsForApp(m.Name) //
@@ -213,7 +202,40 @@ func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *apps
 // 	return map[string]string{"app": "push-queue"}
 // }
 
-//
+// service for proxy
+func (r *LogicReconciler) serviceProxyApp(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
+
+	found_ser := &corev1.Service{}
+	err := r.Get(ctx, types.NamespacedName{Name: "my-service", Namespace: logic.Namespace}, found_ser)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			ser := r.serviceForApp(logic)
+			if err = r.Create(ctx, ser); err != nil {
+				log.Error("proxy service create error : ", err)
+				return ctrl.Result{}, err
+			}
+			log.Warn("Proxy Service Create Requeue!")
+			return ctrl.Result{Requeue: true}, nil
+		} else {
+			return ctrl.Result{}, err
+		}
+
+	}
+	printService(found_ser)
+	return ctrl.Result{}, nil
+}
+
+// print Serviec pretty
+func printService(ser *corev1.Service) {
+	b, err := json.MarshalIndent(ser, "", "  ")
+	if err != nil {
+		log.Error("Service Pretty Convert Error : ", err)
+	}
+	fmt.Println()
+	fmt.Println("Service : \n", string(b))
+}
+
+// service yaml
 func (r *LogicReconciler) serviceForApp(m *databaselogicv1alpha1.Logic) *corev1.Service {
 
 	ser := &corev1.Service{
