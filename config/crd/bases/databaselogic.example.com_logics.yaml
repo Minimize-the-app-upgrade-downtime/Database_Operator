@@ -49,13 +49,13 @@ spec:
               description: If IsUpdated true, new update available. Default value
                 "false".
               type: boolean
+            proxyImage:
+              description: Uses the proxy deployment.(Go proxy) Default value "<empty>".
+              type: string
             requestCount:
               description: ' Use for update the request count'
               minimum: 0
               type: integer
-            sideCarImage:
-              description: Uses the side car image deployment. Default value "<empty>".
-              type: string
             sideCarIsUpdated:
               description: True, Sidecar new update available. Default value "false".
               type: boolean

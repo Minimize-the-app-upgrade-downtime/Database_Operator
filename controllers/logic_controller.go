@@ -104,7 +104,7 @@ func (r *LogicReconciler) logicAPIValuePrint(l *databaselogicv1alpha1.Logic) {
 	log.Info("Database Version : ", " Database Version : ", l.Spec.DatabaseVersion)
 	log.Info("IsUpdated        : ", " IsUpdated        : ", l.Spec.IsUpdated)
 	log.Info("Image            : ", " Image            : ", l.Spec.Image)
-	log.Info("SideCarImage     : ", " SideCarImage     : ", l.Spec.SideCarImage)
+	log.Info("SideCarImage     : ", " SideCarImage     : ", l.Spec.ProxyImage)
 	log.Info("SideCarIsUpdated : ", " SideCarIsUpdated : ", l.Spec.SideCarIsUpdated)
 	log.Info("Request Count    : ", " Request Count    : ", l.Spec.RequestCount)
 	log.Info("Stutus avil.rep  : ", " Stutus avila.rep : ", l.Status.AvailableReplicas)
@@ -150,7 +150,7 @@ func printDeployment(dep *appsv1.Deployment) {
 
 // deploymentForApp returns a app Deployment object.
 func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *appsv1.Deployment {
-	//lbls := labelsForApp(m.Name) //
+
 	replicas := m.Spec.Size // size of the replicas
 
 	dep := &appsv1.Deployment{
@@ -160,7 +160,7 @@ func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *apps
 			APIVersion: "apps/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "push-queue",
+			Name:      m.Name,
 			Namespace: m.Namespace,
 		},
 		Spec: appsv1.DeploymentSpec{
@@ -178,8 +178,8 @@ func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *apps
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image: "2016csc044/queue:v1",
-						Name:  "push-queue",
+						Image: m.Spec.ProxyImage,
+						Name:  "side-car",
 						Env: []corev1.EnvVar{{
 							Name:  "PORT",
 							Value: "50000",
@@ -196,11 +196,6 @@ func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *apps
 	controllerutil.SetControllerReference(m, dep, r.Scheme)
 	return dep
 }
-
-// labelsForApp creates a simple set of labels for App.
-// func labelsForApp(name string) map[string]string {
-// 	return map[string]string{"app": "push-queue"}
-// }
 
 // service for proxy
 func (r *LogicReconciler) serviceProxyApp(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
@@ -251,11 +246,11 @@ func (r *LogicReconciler) serviceForApp(m *databaselogicv1alpha1.Logic) *corev1.
 			Selector: map[string]string{
 				"app": "push-queue",
 			},
-			Type: "NodePort", // Type is ServiceType. Service type is string
+			Type: "NodePort", // ServiceType : LoadBalancer,NodePort
 			Ports: []corev1.ServicePort{{
 				Protocol: "TCP",
 				Port:     80,
-				//NodePort: 30111,
+				NodePort: 30111,
 				TargetPort: intstr.IntOrString{
 					IntVal: 50000,
 				},
