@@ -1,16 +1,16 @@
 apiVersion: databaselogic.example.com/v1alpha1
 kind: Logic
 metadata:
-  name: push-queue
+  name: logic-sample
   labels:
     app: printData
 spec:
-  size: 2
+  size: 3
   image: 2016csc044/epfdetails:v2.0.0
   isUpdated: true
   appVersion: v2.0.0
   databaseVersion: v2.0.0
-  sideCarImage: 2016csc044/epfdetails:v2.0.0
+  proxyImage: 2016csc044/queue:v1
   sideCarIsUpdated: true
   requestCount: 15
   

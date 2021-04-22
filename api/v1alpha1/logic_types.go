@@ -43,9 +43,9 @@ type LogicSpec struct {
 	// Uses the EPF image for the deployment.
 	// Default value "<empty>".
 	Image string `json:"image,omitempty"`
-	// Uses the side car image deployment.
+	// Uses the proxy deployment.(Go proxy)
 	// Default value "<empty>".
-	SideCarImage string `json:"sideCarImage,omitempty"`
+	ProxyImage string `json:"proxyImage,omitempty"`
 	// True, Sidecar new update available.
 	// Default value "false".
 	SideCarIsUpdated bool `json:"sideCarIsUpdated,omitempty"`
