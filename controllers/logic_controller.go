@@ -69,10 +69,12 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	r.logicAPIValuePrint(logic)
 
 	// Create deploment
-	r.deploymentProxyApp(ctx, req, logic)
+	r.deploymentFunc(ctx, req, logic)
 
+	// config map
+	r.configMapFunc(ctx, req, logic)
 	//service
-	r.serviceProxyApp(ctx, req, logic)
+	r.serviceFunc(ctx, req, logic)
 
 	return ctrl.Result{}, nil
 }
@@ -102,12 +104,11 @@ func (r *LogicReconciler) logicAPIValuePrint(l *databaselogicv1alpha1.Logic) {
 	log.Info("Size             : ", " size             : ", l.Spec.Size)
 	log.Info("AppVersion       : ", " AppVersion       : ", l.Spec.AppVersion)
 	log.Info("Database Version : ", " Database Version : ", l.Spec.DatabaseVersion)
-	log.Info("IsUpdated        : ", " IsUpdated        : ", l.Spec.IsUpdated)
-	log.Info("Image            : ", " Image            : ", l.Spec.Image)
-	log.Info("SideCarImage     : ", " SideCarImage     : ", l.Spec.ProxyImage)
-	log.Info("SideCarIsUpdated : ", " SideCarIsUpdated : ", l.Spec.SideCarIsUpdated)
-	log.Info("Request Count    : ", " Request Count    : ", l.Spec.RequestCount)
 	log.Info("Stutus avil.rep  : ", " Stutus avila.rep : ", l.Status.AvailableReplicas)
+	log.Info("App Image Name   : ", " App Image Name   : ", l.Spec.AppName)
+	log.Info("App Image & Ver  : ", " App Image & Ver  : ", l.Spec.AppImage)
+	log.Info("SideCar Name     : ", " SideCar Name     : ", l.Spec.SideCarName)
+	log.Info("SideCar Image&Ver: ", " SideCar Image&Ver: ", l.Spec.SideCarImage)
 	log.Info("Status pod name  : ", " Status pod name  : ", l.Status.PodNames)
 	log.Info("Name             : ", " Name             : ", l.Name)
 	log.Info("NameSpace        : ", " NameSpace        : ", l.Namespace)
@@ -115,22 +116,24 @@ func (r *LogicReconciler) logicAPIValuePrint(l *databaselogicv1alpha1.Logic) {
 }
 
 // deployment
-func (r *LogicReconciler) deploymentProxyApp(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
+func (r *LogicReconciler) deploymentFunc(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
 
 	found_dep := &appsv1.Deployment{}
-	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found_dep)
+
+	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace, AppName: logic.Spec.AppName}, found_dep)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			// Define and create a new deployment.
+			// Define and create a new deployment for App.
 			dep := r.deploymentForApp(logic)
 			if err = r.Create(ctx, dep); err != nil {
-				log.Info("Deployment create error", err)
+				log.Error("Deployment App create error :", err)
 				return ctrl.Result{}, err
 			}
-			log.Warn("Deployment Requeue")
+			log.Warn("App Deployment Requeue !")
 			return ctrl.Result{Requeue: true}, nil
+
 		} else {
-			log.Info("Deployment Get Error", err)
+			log.Error("Deployment", err)
 			return ctrl.Result{}, err
 		}
 	}
@@ -142,7 +145,7 @@ func (r *LogicReconciler) deploymentProxyApp(ctx context.Context, req ctrl.Reque
 func printDeployment(dep *appsv1.Deployment) {
 	b, err := json.MarshalIndent(dep, "", "  ")
 	if err != nil {
-		log.Error("Service Pretty Convert Error : ", err)
+		log.Error("Deployment Pretty Convert Error : ", err)
 	}
 	fmt.Println()
 	fmt.Println("Deployment : \n", string(b))
@@ -151,6 +154,7 @@ func printDeployment(dep *appsv1.Deployment) {
 // deploymentForApp returns a app Deployment object.
 func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *appsv1.Deployment {
 
+	log.Info("deploymet app")
 	replicas := m.Spec.Size // size of the replicas
 
 	dep := &appsv1.Deployment{
@@ -167,24 +171,30 @@ func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *apps
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": "push-queue",
+					"app": m.Name,
 				},
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": "push-queue",
+						"app": m.Name,
 					},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{{
-						Image: m.Spec.ProxyImage,
-						Name:  "side-car",
-						Env: []corev1.EnvVar{{
-							Name:  "PORT",
-							Value: "50000",
-						}},
-					}},
+					Containers: []corev1.Container{
+						{
+							Image: m.Spec.SideCarImage,
+							Name:  m.Spec.SideCarName,
+							Env: []corev1.EnvVar{{
+								Name:  "PORT",
+								Value: "50000",
+							}},
+						},
+						{
+							Image: m.Spec.AppImage,
+							Name:  m.Spec.AppName,
+						},
+					},
 				},
 			},
 		},
@@ -198,18 +208,18 @@ func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *apps
 }
 
 // service for proxy
-func (r *LogicReconciler) serviceProxyApp(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
+func (r *LogicReconciler) serviceFunc(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
 
 	found_ser := &corev1.Service{}
-	err := r.Get(ctx, types.NamespacedName{Name: "my-service", Namespace: logic.Namespace}, found_ser)
+	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found_ser)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			ser := r.serviceForApp(logic)
 			if err = r.Create(ctx, ser); err != nil {
-				log.Error("proxy service create error : ", err)
+				log.Error("Service create error : ", err)
 				return ctrl.Result{}, err
 			}
-			log.Warn("Proxy Service Create Requeue!")
+			log.Warn("Service Create Requeue!")
 			return ctrl.Result{Requeue: true}, nil
 		} else {
 			return ctrl.Result{}, err
@@ -239,18 +249,18 @@ func (r *LogicReconciler) serviceForApp(m *databaselogicv1alpha1.Logic) *corev1.
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "my-service",
+			Name:      m.Name,
 			Namespace: m.Namespace,
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: map[string]string{
-				"app": "push-queue",
+				"app": m.Name,
 			},
 			Type: "NodePort", // ServiceType : LoadBalancer,NodePort
 			Ports: []corev1.ServicePort{{
 				Protocol: "TCP",
 				Port:     80,
-				NodePort: 30111,
+				NodePort: 30007,
 				TargetPort: intstr.IntOrString{
 					IntVal: 50000,
 				},
@@ -259,4 +269,56 @@ func (r *LogicReconciler) serviceForApp(m *databaselogicv1alpha1.Logic) *corev1.
 	}
 	controllerutil.SetControllerReference(m, ser, r.Scheme)
 	return ser
+}
+
+func (r *LogicReconciler) configMapFunc(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
+
+	found_config := &corev1.ConfigMap{}
+	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found_config)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			con := r.configMapForApp(logic)
+			if err = r.Create(ctx, con); err != nil {
+				log.Error("Configmap create error : ", err)
+				return ctrl.Result{}, err
+			}
+			log.Warn("Config Map  Requeue!")
+			return ctrl.Result{Requeue: true}, nil
+		} else {
+			return ctrl.Result{}, err
+		}
+
+	}
+	printConfigMap(found_config)
+	return ctrl.Result{}, nil
+}
+
+// print ConfigMap pretty
+func printConfigMap(con *corev1.ConfigMap) {
+	b, err := json.MarshalIndent(con, "", "  ")
+	if err != nil {
+		log.Error("ConfigMap Pretty Convert Error : ", err)
+	}
+	fmt.Println()
+	fmt.Println("ConfigMap : \n", string(b))
+}
+
+// service yaml
+func (r *LogicReconciler) configMapForApp(m *databaselogicv1alpha1.Logic) *corev1.ConfigMap {
+
+	con := &corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      m.Name,
+			Namespace: m.Namespace,
+		},
+		Data: map[string]string{
+			"epfDetails.conf": "server { location { proxy_pass http://localhost:3000; } }",
+		},
+	}
+	controllerutil.SetControllerReference(m, con, r.Scheme)
+	return con
 }
