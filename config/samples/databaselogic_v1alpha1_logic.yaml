@@ -6,11 +6,9 @@ metadata:
     app: printData
 spec:
   size: 3
-  image: 2016csc044/epfdetails:v2.0.0
-  isUpdated: true
+  appname: epf-data
+  appimage: 2016csc044/epfdetails:v1.0.1
+  sideCarName: reconsile-app
+  sideCarImage: 2016csc044/reconsile:v1.0.1
   appVersion: v2.0.0
   databaseVersion: v2.0.0
-  proxyImage: 2016csc044/queue:v1
-  sideCarIsUpdated: true
-  requestCount: 15
-  

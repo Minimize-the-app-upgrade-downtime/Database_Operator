@@ -37,21 +37,18 @@ type LogicSpec struct {
 	// EPF Database version.
 	// Default value "<empty>".
 	DatabaseVersion string `json:"databaseVersion,omitempty"`
-	// If IsUpdated true, new update available.
-	// Default value "false".
-	IsUpdated bool `json:"isUpdated,omitempty"`
 	// Uses the EPF image for the deployment.
 	// Default value "<empty>".
-	Image string `json:"image,omitempty"`
+	AppImage string `json:"appimage,omitempty"`
+	//Use the App name Image identyfy the app
+	// Default value "<empty>".
+	AppName string `json:"appname,omitempty"`
 	// Uses the proxy deployment.(Go proxy)
 	// Default value "<empty>".
-	ProxyImage string `json:"proxyImage,omitempty"`
-	// True, Sidecar new update available.
-	// Default value "false".
-	SideCarIsUpdated bool `json:"sideCarIsUpdated,omitempty"`
-	//  Use for update the request count
-	// +kubebuilder:validation:Minimum=0
-	RequestCount int `json:"requestCount,omitempty"`
+	SideCarImage string `json:"sideCarImage,omitempty"`
+	// Uses the proxy deploment for proxy name
+	// Default value "<empty>".
+	SideCarName string `json:"sideCarName,omitempty"`
 }
 
 // LogicStatus defines the observed state of Logic

@@ -39,26 +39,21 @@ spec:
             appVersion:
               description: EPF application version. Default value "<empty>".
               type: string
+            appimage:
+              description: Uses the EPF image for the deployment. Default value "<empty>".
+              type: string
+            appname:
+              description: Use the App name Image identyfy the app Default value "<empty>".
+              type: string
             databaseVersion:
               description: EPF Database version. Default value "<empty>".
               type: string
-            image:
-              description: Uses the EPF image for the deployment. Default value "<empty>".
-              type: string
-            isUpdated:
-              description: If IsUpdated true, new update available. Default value
-                "false".
-              type: boolean
-            proxyImage:
+            sideCarImage:
               description: Uses the proxy deployment.(Go proxy) Default value "<empty>".
               type: string
-            requestCount:
-              description: ' Use for update the request count'
-              minimum: 0
-              type: integer
-            sideCarIsUpdated:
-              description: True, Sidecar new update available. Default value "false".
-              type: boolean
+            sideCarName:
+              description: Uses the proxy deploment for proxy name Default value "<empty>".
+              type: string
             size:
               description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
                 Important: Run "make" to regenerate code after modifying this file
