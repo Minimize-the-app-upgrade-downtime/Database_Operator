@@ -1,0 +1,455 @@
+<mxfile>
+    <diagram id="57YuRDvRVl7fnGDnGzmC" name="Page-1">
+        <mxGraphModel dx="1102" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="4681" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="3" value="" style="shape=umlLifeline;participant=umlActor;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;size=30;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="50" width="30" height="2110" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Actor" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="3" vertex="1">
+                    <mxGeometry x="-5" y="30" width="40" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="API Server" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="180" y="40" width="100" height="2120" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Etcd" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="40" width="100" height="2120" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="7" vertex="1">
+                    <mxGeometry x="45" y="270" width="10" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="46" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="7" vertex="1">
+                    <mxGeometry x="45" y="550" width="10" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Controller" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="780" y="40" width="100" height="2120" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Kubelet" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="980" y="40" width="100" height="2120" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="10" vertex="1">
+                    <mxGeometry x="45" y="390" width="10" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="Container" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="1180" y="40" width="100" height="2120" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="11" vertex="1">
+                    <mxGeometry x="45" y="425" width="10" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="create &lt;br&gt;opearator&lt;br&gt;&amp;nbsp;(kuectl apply&lt;br&gt;&amp;nbsp;-f operator.yaml)" style="endArrow=block;endSize=16;endFill=0;html=1;entryX=0.2;entryY=0.05;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" target="13" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="70" y="142" as="sourcePoint"/>
+                        <mxPoint x="230" y="142" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="13" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="225" y="140" width="10" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="Shedular" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="580" y="40" width="100" height="2120" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="425" y="150" width="10" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="write yaml" style="html=1;verticalAlign=bottom;endArrow=block;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="240" y="154" as="sourcePoint"/>
+                        <mxPoint x="425" y="154" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="18" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.95;" parent="1" source="16" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="240" y="198" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="19" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="625" y="240" width="10" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="watch API server for new deployment" style="html=1;verticalAlign=bottom;startArrow=oval;endArrow=block;startSize=8;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="234.5" y="243" as="sourcePoint"/>
+                        <mxPoint x="625" y="243" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="21" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="625" y="279.5" as="sourcePoint"/>
+                        <mxPoint x="240" y="280" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="22" value="Bind node and pod operator" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="325" y="260" width="160" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="225" y="280" width="10" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" target="24" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="235" y="314" as="sourcePoint"/>
+                        <mxPoint x="420" y="314" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="28" value="write&amp;nbsp;&amp;nbsp;" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="301" y="295" width="50" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="425" y="347" as="sourcePoint"/>
+                        <mxPoint x="235" y="347" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="33" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry x="0.2051" relative="1" as="geometry">
+                        <mxPoint x="235" y="391" as="sourcePoint"/>
+                        <mxPoint x="625" y="391" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="34" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" source="6" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="570" y="420" as="sourcePoint"/>
+                        <mxPoint x="1023" y="440" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="690" y="440"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="35" value="watch API Server (Bound pod)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="527" y="420" width="180" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="1035" y="470" as="sourcePoint"/>
+                        <mxPoint x="1220" y="472" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="38" value="Docker run &lt;br&gt;for pull operator image" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="435" width="140" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="39" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry x="0.271" relative="1" as="geometry">
+                        <mxPoint x="1167" y="520" as="sourcePoint"/>
+                        <mxPoint x="1036.5" y="520" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="1230" y="520"/>
+                            <mxPoint x="1167" y="520"/>
+                            <mxPoint x="1117" y="520"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="43" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="225" y="554" width="10" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="44" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="1024" y="560" as="sourcePoint"/>
+                        <mxPoint x="240" y="563" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="45" value="update pod status&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="527" y="537" width="110" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="47" value="write status&amp;nbsp; = runing&amp;nbsp;" style="html=1;verticalAlign=bottom;endArrow=block;entryX=0;entryY=0;" parent="1" edge="1">
+                    <mxGeometry x="-0.0162" relative="1" as="geometry">
+                        <mxPoint x="239" y="597" as="sourcePoint"/>
+                        <mxPoint x="424" y="597" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="48" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.95;" parent="1" source="46" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="240" y="638" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="49" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="234.5" y="680" as="sourcePoint"/>
+                        <mxPoint x="1020" y="680" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="52" value="watch operator( kind = logic)" style="html=1;verticalAlign=bottom;startArrow=oval;startFill=1;endArrow=block;startSize=8;" parent="1" edge="1">
+                    <mxGeometry width="60" relative="1" as="geometry">
+                        <mxPoint x="232.5" y="760" as="sourcePoint"/>
+                        <mxPoint x="820" y="760" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="53" value="Apply EPF&lt;br&gt;kubectl apply&amp;nbsp;&lt;br&gt;-f epf.yaml" style="endArrow=block;endSize=16;endFill=0;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="66.5" y="830" as="sourcePoint"/>
+                        <mxPoint x="224" y="830" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="54" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="225" y="820" width="10" height="310" as="geometry"/>
+                </mxCell>
+                <mxCell id="55" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="415" y="840" width="10" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="56" value="write" style="html=1;verticalAlign=bottom;endArrow=block;entryX=0;entryY=0;" parent="1" source="54" target="55" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="345" y="840" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="57" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.95;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="240" y="887" as="targetPoint"/>
+                        <mxPoint x="415" y="887" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="58" value="" style="endArrow=open;endFill=1;endSize=12;html=1;entryX=1.5;entryY=0.727;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="822" y="930" as="sourcePoint"/>
+                        <mxPoint x="240" y="930.05" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="59" value="First deploy EPF App" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="495" y="910" width="130" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="70" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="425" y="1039" width="10" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="71" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="625" y="969" width="10" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="72" value="watch API server for new deployment" style="html=1;verticalAlign=bottom;startArrow=oval;endArrow=block;startSize=8;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="234.5" y="972" as="sourcePoint"/>
+                        <mxPoint x="625" y="972" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="73" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="625" y="1008.5" as="sourcePoint"/>
+                        <mxPoint x="240" y="1009" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="74" value="Bind node and&amp;nbsp; EPF pod" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="989" width="150" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="76" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" target="70" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="235" y="1043" as="sourcePoint"/>
+                        <mxPoint x="420" y="1043" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="77" value="write&amp;nbsp;&amp;nbsp;" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="301" y="1024" width="50" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="78" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="425" y="1076" as="sourcePoint"/>
+                        <mxPoint x="235" y="1076" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="79" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry x="0.2051" relative="1" as="geometry">
+                        <mxPoint x="235" y="1120" as="sourcePoint"/>
+                        <mxPoint x="625" y="1120" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="80" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="426" y="1325" width="10" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="81" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="1226" y="1200" width="10" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="82" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="230.5" y="1175" as="sourcePoint"/>
+                        <mxPoint x="1024" y="1175" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="691" y="1175"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="83" value="watch API Server (Bound pod)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="528" y="1155" width="180" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="84" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="1036" y="1205" as="sourcePoint"/>
+                        <mxPoint x="1221" y="1207" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="85" value="Docker run &lt;br&gt;for pull&amp;nbsp;EPF app" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="1081" y="1170" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="86" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry x="0.271" relative="1" as="geometry">
+                        <mxPoint x="1168" y="1255" as="sourcePoint"/>
+                        <mxPoint x="1037.5" y="1255" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="1231" y="1255"/>
+                            <mxPoint x="1168" y="1255"/>
+                            <mxPoint x="1118" y="1255"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="87" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="226" y="1289" width="10" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="88" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="1025" y="1295" as="sourcePoint"/>
+                        <mxPoint x="241" y="1298" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="89" value="update pod status&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="528" y="1272" width="110" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="90" value="write status&amp;nbsp; = runing&amp;nbsp;" style="html=1;verticalAlign=bottom;endArrow=block;entryX=0;entryY=0;" parent="1" edge="1">
+                    <mxGeometry x="-0.0162" relative="1" as="geometry">
+                        <mxPoint x="240" y="1332" as="sourcePoint"/>
+                        <mxPoint x="425" y="1332" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="91" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.95;" parent="1" source="80" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="241" y="1373" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="92" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="235.5" y="1415" as="sourcePoint"/>
+                        <mxPoint x="1021" y="1415" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="93" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="825" y="750" width="10" height="1250" as="geometry"/>
+                </mxCell>
+                <mxCell id="94" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="1025" y="1160" width="10" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="95" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" target="6" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="822" y="1567" as="sourcePoint"/>
+                        <mxPoint x="240" y="1567.05" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="96" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="425" y="1676" width="10" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="97" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="625" y="1606" width="10" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="98" value="watch API server for new deployment" style="html=1;verticalAlign=bottom;startArrow=oval;endArrow=block;startSize=8;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="234.5" y="1609" as="sourcePoint"/>
+                        <mxPoint x="625" y="1609" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="99" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="625" y="1645.5" as="sourcePoint"/>
+                        <mxPoint x="240" y="1646" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="100" value="Bind the epf with side car pod" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="319" y="1626" width="170" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="101" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" target="96" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="235" y="1680" as="sourcePoint"/>
+                        <mxPoint x="420" y="1680" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="102" value="write&amp;nbsp;&amp;nbsp;" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="301" y="1661" width="50" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="103" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="425" y="1713" as="sourcePoint"/>
+                        <mxPoint x="235" y="1713" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="104" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry x="0.2051" relative="1" as="geometry">
+                        <mxPoint x="235" y="1757" as="sourcePoint"/>
+                        <mxPoint x="625" y="1757" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="105" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="426" y="1962" width="10" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="106" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="1226" y="1837" width="10" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="107" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="230.5" y="1812" as="sourcePoint"/>
+                        <mxPoint x="1024" y="1812" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="691" y="1812"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="108" value="watch API Server (Bound side car pod" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="508" y="1792" width="220" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="109" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="1036" y="1842" as="sourcePoint"/>
+                        <mxPoint x="1221" y="1844" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="110" value="Docker run &lt;br&gt;for pull&amp;nbsp;sidecar image" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="1066" y="1807" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="111" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry x="0.271" relative="1" as="geometry">
+                        <mxPoint x="1168" y="1892" as="sourcePoint"/>
+                        <mxPoint x="1037.5" y="1892" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="1231" y="1892"/>
+                            <mxPoint x="1168" y="1892"/>
+                            <mxPoint x="1118" y="1892"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="112" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="226" y="1926" width="10" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="113" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="1025" y="1932" as="sourcePoint"/>
+                        <mxPoint x="241" y="1935" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="114" value="update pod status&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="528" y="1909" width="110" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="115" value="write status&amp;nbsp; = runing&amp;nbsp;" style="html=1;verticalAlign=bottom;endArrow=block;entryX=0;entryY=0;" parent="1" edge="1">
+                    <mxGeometry x="-0.0162" relative="1" as="geometry">
+                        <mxPoint x="240" y="1969" as="sourcePoint"/>
+                        <mxPoint x="425" y="1969" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="116" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.95;" parent="1" source="105" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="241" y="2010" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="117" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="235.5" y="2052" as="sourcePoint"/>
+                        <mxPoint x="1021" y="2052" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="118" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="1025" y="1797" width="10" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="119" value="Inject the sidecar into the EPF&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="390" y="1540" width="180" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

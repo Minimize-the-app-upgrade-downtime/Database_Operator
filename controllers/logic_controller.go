@@ -154,7 +154,6 @@ func printDeployment(dep *appsv1.Deployment) {
 // deploymentForApp returns a app Deployment object.
 func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *appsv1.Deployment {
 
-	log.Info("deploymet app")
 	replicas := m.Spec.Size // size of the replicas
 
 	dep := &appsv1.Deployment{
