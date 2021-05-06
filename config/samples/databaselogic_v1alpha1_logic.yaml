@@ -7,8 +7,8 @@ metadata:
 spec:
   size: 3
   appname: epf-data
-  appimage: 2016csc044/epfdetails:v1.0.1
+  appimage: 2016csc044/epfdetails:v1.0.2
   sideCarName: reconsile-app
-  sideCarImage: 2016csc044/reconsile:v1.0.1
-  appVersion: v2.0.0
+  sideCarImage: 2016csc044/reconsile:v1.0.2
+  appVersion: v1.0.1
   databaseVersion: v2.0.0

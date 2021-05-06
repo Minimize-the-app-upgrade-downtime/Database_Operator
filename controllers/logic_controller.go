@@ -20,6 +20,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/prometheus/common/log"
@@ -76,6 +78,26 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	//service
 	r.serviceFunc(ctx, req, logic)
 
+	// check correct image deploy in the cluster.
+	found := &appsv1.Deployment{}
+	r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found)
+
+	// check image version
+	if found.Spec.Template.Spec.Containers[1].Image != logic.Spec.AppImage {
+		found.Spec.Template.Spec.Containers[1].Image = logic.Spec.AppImage
+		// request store in a queue
+		http.Get("http://localhost:50000/cluster_Reconsile_Enable")
+		log.Info("Requst store in the Queue.")
+		time.Sleep(15 * time.Second) // sleep 15 second
+		if err = r.Update(ctx, found); err != nil {
+			return ctrl.Result{}, err
+		}
+		// requst pop and give the cluster. cluster is working properly
+		http.Get("http://localhost:50000/cluster_Reconsile_Disable")
+		log.Info("Requst pop in the Queue. Clsuter is working properly.")
+
+		return ctrl.Result{Requeue: true}, nil
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -120,15 +142,19 @@ func (r *LogicReconciler) deploymentFunc(ctx context.Context, req ctrl.Request, 
 
 	found_dep := &appsv1.Deployment{}
 
-	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace, AppName: logic.Spec.AppName}, found_dep)
+	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found_dep)
+
 	if err != nil {
+
 		if errors.IsNotFound(err) {
+
 			// Define and create a new deployment for App.
 			dep := r.deploymentForApp(logic)
 			if err = r.Create(ctx, dep); err != nil {
 				log.Error("Deployment App create error :", err)
 				return ctrl.Result{}, err
 			}
+
 			log.Warn("App Deployment Requeue !")
 			return ctrl.Result{Requeue: true}, nil
 
