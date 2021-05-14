@@ -48,6 +48,12 @@ spec:
             databaseVersion:
               description: EPF Database version. Default value "<empty>".
               type: string
+            schemaChangeApplyImage:
+              description: schema changes apply for reqest Default value "<empty>"
+              type: string
+            schemaChangeApplyName:
+              description: schema changes apply for reqest Default value "<empty>"
+              type: string
             sideCarImage:
               description: Uses the proxy deployment.(Go proxy) Default value "<empty>".
               type: string

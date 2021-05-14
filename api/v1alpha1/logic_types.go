@@ -49,6 +49,12 @@ type LogicSpec struct {
 	// Uses the proxy deploment for proxy name
 	// Default value "<empty>".
 	SideCarName string `json:"sideCarName,omitempty"`
+	// schema changes apply for reqest
+	// Default value "<empty>"
+	SchemaChangeApplyName string `json:"schemaChangeApplyName,omitempty"`
+	// schema changes apply for reqest
+	// Default value "<empty>"
+	SchemaChangeApplyImage string `json:"schemaChangeApplyImage,omitempty"`
 }
 
 // LogicStatus defines the observed state of Logic

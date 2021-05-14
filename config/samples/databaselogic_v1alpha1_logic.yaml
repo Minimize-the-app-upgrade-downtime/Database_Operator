@@ -7,8 +7,10 @@ metadata:
 spec:
   size: 3
   appname: epf-data
-  appimage: 2016csc044/epfdetails:v1.0.2
+  appimage: 2016csc044/epfdetails:v1.0.3
   sideCarName: reconsile-app
-  sideCarImage: 2016csc044/reconsile:v1.0.2
-  appVersion: v1.0.1
-  databaseVersion: v2.0.0
+  sideCarImage: 2016csc044/reconsile:v1.0.3
+  schemaChangeApplyName: schema-change-apply-request
+  schemaChangeApplyImage: 2016csc044/schema_changes_apply_for_request:v1.0.1
+  appVersion: v1_0_1
+  databaseVersion: v_0_1
