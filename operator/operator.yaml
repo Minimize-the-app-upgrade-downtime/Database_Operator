@@ -21,16 +21,14 @@ spec:
       description: Logic is the Schema for the logics API
       properties:
         apiVersion:
-          description:
-            "APIVersion defines the versioned schema of this representation
+          description: 'APIVersion defines the versioned schema of this representation
             of an object. Servers should convert recognized schemas to the latest
-            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
           type: string
         kind:
-          description:
-            "Kind is a string value representing the REST resource this
+          description: 'Kind is a string value representing the REST resource this
             object represents. Servers may infer this from the endpoint the client
-            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
           type: string
         metadata:
           type: object
@@ -49,6 +47,12 @@ spec:
             databaseVersion:
               description: EPF Database version. Default value "<empty>".
               type: string
+            schemaChangeApplyImage:
+              description: schema changes apply for reqest Default value "<empty>"
+              type: string
+            schemaChangeApplyName:
+              description: schema changes apply for reqest Default value "<empty>"
+              type: string
             sideCarImage:
               description: Uses the proxy deployment.(Go proxy) Default value "<empty>".
               type: string
@@ -56,8 +60,7 @@ spec:
               description: Uses the proxy deploment for proxy name Default value "<empty>".
               type: string
             size:
-              description:
-                'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
                 Important: Run "make" to regenerate code after modifying this file
                 Replica count of the DatabaseLogic.'
               format: int32
@@ -72,29 +75,29 @@ spec:
               format: int32
               type: integer
             podNames:
-              description:
-                'INSERT ADDITIONAL STATUS FIELD - define observed state
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
                 of cluster Important: Run "make" to regenerate code after modifying
                 this file'
               items:
                 type: string
               type: array
           required:
-            - availableReplicas
-            - podNames
+          - availableReplicas
+          - podNames
           type: object
       type: object
   version: v1alpha1
   versions:
-    - name: v1alpha1
-      served: true
-      storage: true
+  - name: v1alpha1
+    served: true
+    storage: true
 status:
   acceptedNames:
     kind: ""
     plural: ""
   conditions: []
   storedVersions: []
+
 
 
 
@@ -290,7 +293,7 @@ spec:
         - --enable-leader-election
         command:
         - /manager
-        image: 2016csc044/samples:v1 #operator Image and version
+        image: 2016csc044/dboperator:v2 #operator Image and version
         name: manager
         resources:
           limits:
