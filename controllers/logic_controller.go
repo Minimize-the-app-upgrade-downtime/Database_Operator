@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
+	//"time"
 
 	"github.com/go-logr/logr"
 	"github.com/prometheus/common/log"
@@ -37,6 +37,9 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 
 	databaselogicv1alpha1 "github.com/Minimize-the-app-upgrade-downtime/Database_Operator/api/v1alpha1"
 )
@@ -83,12 +86,30 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found)
 
 	// check image version
-	if found.Spec.Template.Spec.Containers[1].Image != logic.Spec.AppImage {
-		found.Spec.Template.Spec.Containers[1].Image = logic.Spec.AppImage
+	if found.Spec.Template.Spec.Containers[2].Image != logic.Spec.AppImage {
+
+		found.Spec.Template.Spec.Containers[2].Image = logic.Spec.AppImage
 		// request store in a queue
 		http.Get("http://localhost:50000/cluster_Reconsile_Enable")
 		log.Info("Requst store in the Queue.")
-		time.Sleep(15 * time.Second) // sleep 15 second
+
+		log.Info("Database Updating .....")
+
+		// open mysql connection
+		db, err := sql.Open("mysql", "u8il24jxufb4n4ty:t5z5jvsyolrqhn9k@tcp(jhdjjtqo9w5bzq2t.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306)/m0ky8hn32ov17miq")
+
+		if err != nil {
+			panic(err.Error())
+		}
+		defer db.Close() // close connection
+		// call sp
+		version, err := db.Query("call version(?,?)", logic.Spec.AppVersion, logic.Spec.DatabaseVersion)
+		if err != nil {
+			panic(err.Error())
+		}
+		defer version.Close()
+		log.Info("Database  Successfully Update.")
+
 		if err = r.Update(ctx, found); err != nil {
 			return ctrl.Result{}, err
 		}
@@ -98,6 +119,7 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		return ctrl.Result{Requeue: true}, nil
 	}
+
 	return ctrl.Result{}, nil
 }
 
@@ -131,6 +153,8 @@ func (r *LogicReconciler) logicAPIValuePrint(l *databaselogicv1alpha1.Logic) {
 	log.Info("App Image & Ver  : ", " App Image & Ver  : ", l.Spec.AppImage)
 	log.Info("SideCar Name     : ", " SideCar Name     : ", l.Spec.SideCarName)
 	log.Info("SideCar Image&Ver: ", " SideCar Image&Ver: ", l.Spec.SideCarImage)
+	log.Info("Sch.chan Name    : ", " Sch.chan  Name   : ", l.Spec.SchemaChangeApplyName)
+	log.Info("sch.cha Image&Ver: ", " sch.cha Image&Ver: ", l.Spec.SchemaChangeApplyImage)
 	log.Info("Status pod name  : ", " Status pod name  : ", l.Status.PodNames)
 	log.Info("Name             : ", " Name             : ", l.Name)
 	log.Info("NameSpace        : ", " NameSpace        : ", l.Namespace)
@@ -213,6 +237,14 @@ func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *apps
 							Env: []corev1.EnvVar{{
 								Name:  "PORT",
 								Value: "50000",
+							}},
+						},
+						{
+							Image: m.Spec.SchemaChangeApplyImage,
+							Name:  m.Spec.SchemaChangeApplyName,
+							Env: []corev1.EnvVar{{
+								Name:  "PORT",
+								Value: "50002",
 							}},
 						},
 						{
@@ -328,7 +360,7 @@ func printConfigMap(con *corev1.ConfigMap) {
 	fmt.Println("ConfigMap : \n", string(b))
 }
 
-// service yaml
+// config yaml
 func (r *LogicReconciler) configMapForApp(m *databaselogicv1alpha1.Logic) *corev1.ConfigMap {
 
 	con := &corev1.ConfigMap{
@@ -341,7 +373,8 @@ func (r *LogicReconciler) configMapForApp(m *databaselogicv1alpha1.Logic) *corev
 			Namespace: m.Namespace,
 		},
 		Data: map[string]string{
-			"epfDetails.conf": "server { location { proxy_pass http://localhost:3000; } }",
+			"epfDetails.conf":        "server { location { proxy_pass http://localhost:3000; } }",
+			"schemaApplyChange.conf": "server { location { proxy_pass http://localhost:50002; } }",
 		},
 	}
 	controllerutil.SetControllerReference(m, con, r.Scheme)
