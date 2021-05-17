@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	//"time"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/prometheus/common/log"
@@ -39,6 +39,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
 
 	databaselogicv1alpha1 "github.com/Minimize-the-app-upgrade-downtime/Database_Operator/api/v1alpha1"
@@ -70,6 +71,7 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		log.Error(err, "Failed to get Logic")
 		return ctrl.Result{}, err
 	}
+
 	// print Logic API Value
 	r.logicAPIValuePrint(logic)
 
@@ -86,38 +88,82 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found)
 
 	// check image version
-	if found.Spec.Template.Spec.Containers[2].Image != logic.Spec.AppImage {
+	if found.Spec.Template.Spec.Containers[0].Image != logic.Spec.AppImage {
 
-		found.Spec.Template.Spec.Containers[2].Image = logic.Spec.AppImage
+		// cureent application version
+		currentappVersion := found.Spec.Template.Spec.Containers[0].Image
+		found.Spec.Template.Spec.Containers[0].Image = logic.Spec.AppImage
 		// request store in a queue
-		http.Get("http://localhost:50000/cluster_Reconsile_Enable")
+		_, err := http.Get("http://34.70.130.195:30007/cluster_Reconsile_Enable")
+		if err != nil {
+			fmt.Println("con. error :", err)
+		}
+
 		log.Info("Requst store in the Queue.")
 
 		log.Info("Database Updating .....")
-
+		time.Sleep(40 * time.Second)
 		// open mysql connection
 		db, err := sql.Open("mysql", "u8il24jxufb4n4ty:t5z5jvsyolrqhn9k@tcp(jhdjjtqo9w5bzq2t.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306)/m0ky8hn32ov17miq")
-
 		if err != nil {
 			panic(err.Error())
 		}
 		defer db.Close() // close connection
-		// call sp
-		version, err := db.Query("call version(?,?)", logic.Spec.AppVersion, logic.Spec.DatabaseVersion)
+		// call version update sp
+		_, err = db.Query("call updateVersion(?,?)", logic.Spec.AppVersion, logic.Spec.DatabaseVersion)
 		if err != nil {
-			panic(err.Error())
-		}
-		defer version.Close()
-		log.Info("Database  Successfully Update.")
-
-		if err = r.Update(ctx, found); err != nil {
+			// chanege the CRD
+			logic.Spec.AppImage = currentappVersion
+			// downgrade database
+			_, err := db.Query("call downgradeVersion(?)", currentappVersion)
+			if err != nil {
+				//panic(err.Error())
+				fmt.Println("db downgrade error : ", err)
+			}
 			return ctrl.Result{}, err
+		} else {
+			// update application pod
+			if err = r.Update(ctx, found); err != nil {
+				found.Spec.Template.Spec.Containers[0].Image = currentappVersion
+				logic.Spec.AppImage = currentappVersion
+				// downgrade database
+				_, err := db.Query("call downgradeVersion(?)", currentappVersion)
+				if err != nil {
+					// panic(err.Error())
+					fmt.Println("db downgrade error : ", err)
+				}
+				// downgrade app
+				patch := client.MergeFrom(found.DeepCopy())
+				err = r.Patch(ctx, found, patch)
+				if err != nil {
+					fmt.Println("Application Downgrade Error ", err)
+				}
+				return ctrl.Result{}, err
+			} else {
+
+				patch := client.MergeFrom(found.DeepCopy())
+				found.Spec.Template.Spec.Containers[1].Image = logic.Spec.SchemaChangeApplyImage
+				err := r.Patch(ctx, found, patch)
+				if err != nil {
+					fmt.Println("Schema change apply error : ", err)
+				}
+			}
 		}
+
+		log.Info("Database and app Successfully Update.")
+
 		// requst pop and give the cluster. cluster is working properly
-		http.Get("http://localhost:50000/cluster_Reconsile_Disable")
+		http.Get("http://34.70.130.195:30007/cluster_Reconsile_Disable")
 		log.Info("Requst pop in the Queue. Clsuter is working properly.")
 
-		return ctrl.Result{Requeue: true}, nil
+		return ctrl.Result{RequeueAfter: time.Second * 10}, nil
+	}
+
+	if found.Spec.Template.Spec.Containers[1].Image != logic.Spec.DefaultSchemaImage {
+		found.Spec.Template.Spec.Containers[1].Image = logic.Spec.DefaultSchemaImage
+		if err = r.Update(ctx, found); err != nil {
+			return ctrl.Result{Requeue: true}, nil
+		}
 	}
 
 	return ctrl.Result{}, nil
@@ -232,15 +278,11 @@ func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *apps
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
-							Image: m.Spec.SideCarImage,
-							Name:  m.Spec.SideCarName,
-							Env: []corev1.EnvVar{{
-								Name:  "PORT",
-								Value: "50000",
-							}},
+							Image: m.Spec.AppImage,
+							Name:  m.Spec.AppName,
 						},
 						{
-							Image: m.Spec.SchemaChangeApplyImage,
+							Image: m.Spec.DefaultSchemaImage, // default current version schema
 							Name:  m.Spec.SchemaChangeApplyName,
 							Env: []corev1.EnvVar{{
 								Name:  "PORT",
@@ -248,8 +290,12 @@ func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *apps
 							}},
 						},
 						{
-							Image: m.Spec.AppImage,
-							Name:  m.Spec.AppName,
+							Image: m.Spec.SideCarImage,
+							Name:  m.Spec.SideCarName,
+							Env: []corev1.EnvVar{{
+								Name:  "PORT",
+								Value: "50000",
+							}},
 						},
 					},
 				},
@@ -339,6 +385,7 @@ func (r *LogicReconciler) configMapFunc(ctx context.Context, req ctrl.Request, l
 				log.Error("Configmap create error : ", err)
 				return ctrl.Result{}, err
 			}
+
 			log.Warn("Config Map  Requeue!")
 			return ctrl.Result{Requeue: true}, nil
 		} else {
@@ -373,8 +420,7 @@ func (r *LogicReconciler) configMapForApp(m *databaselogicv1alpha1.Logic) *corev
 			Namespace: m.Namespace,
 		},
 		Data: map[string]string{
-			"epfDetails.conf":        "server { location { proxy_pass http://localhost:3000; } }",
-			"schemaApplyChange.conf": "server { location { proxy_pass http://localhost:50002; } }",
+			"epfDetails.conf": "server { location / { proxy_pass http://localhost:3000; } location / { proxy_pass http://localhost:50002; }   }",
 		},
 	}
 	controllerutil.SetControllerReference(m, con, r.Scheme)

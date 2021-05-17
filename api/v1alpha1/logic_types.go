@@ -55,6 +55,10 @@ type LogicSpec struct {
 	// schema changes apply for reqest
 	// Default value "<empty>"
 	SchemaChangeApplyImage string `json:"schemaChangeApplyImage,omitempty"`
+	// Default schema changes apply.
+	// current version database schema
+	// Default value "<empty>".
+	DefaultSchemaImage string `json:"defaultSchemaImage,omitempty"`
 }
 
 // LogicStatus defines the observed state of Logic
