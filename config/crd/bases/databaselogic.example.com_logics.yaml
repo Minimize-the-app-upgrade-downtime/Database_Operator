@@ -48,6 +48,10 @@ spec:
             databaseVersion:
               description: EPF Database version. Default value "<empty>".
               type: string
+            defaultSchemaImage:
+              description: Default schema changes apply. current version database
+                schema Default value "<empty>".
+              type: string
             schemaChangeApplyImage:
               description: schema changes apply for reqest Default value "<empty>"
               type: string
