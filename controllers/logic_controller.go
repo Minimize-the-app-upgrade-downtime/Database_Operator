@@ -54,9 +54,9 @@ type LogicReconciler struct {
 
 // +kubebuilder:rbac:groups=databaselogic.example.com,namespace=default,resources=logics,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=databaselogic.example.com,namespace=default,resources=logics/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=databaselogic.example.com,namespace=default,resources=logics/finalizers,verbs=update
+// +kubebuilder:rbac:groups=databaselogic.example.com,namespace=default,resources=logics/finalizers,verbs=update;patch
 // +kubebuilder:rbac:groups=apps,namespace=default,resources=deployments,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;
+// +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;patch;
 func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 	log := r.Log.WithValues("logic", req.NamespacedName)
@@ -92,7 +92,7 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		// cureent application version
 		currentappVersion := found.Spec.Template.Spec.Containers[0].Image
-		found.Spec.Template.Spec.Containers[0].Image = logic.Spec.AppImage
+
 		// request store in a queue
 		_, err := http.Get("http://34.70.130.195:30007/cluster_Reconsile_Enable")
 		if err != nil {
@@ -102,7 +102,7 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		log.Info("Requst store in the Queue.")
 
 		log.Info("Database Updating .....")
-		time.Sleep(40 * time.Second)
+		time.Sleep(30 * time.Second)
 		// open mysql connection
 		db, err := sql.Open("mysql", "u8il24jxufb4n4ty:t5z5jvsyolrqhn9k@tcp(jhdjjtqo9w5bzq2t.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306)/m0ky8hn32ov17miq")
 		if err != nil {
@@ -122,10 +122,21 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			}
 			return ctrl.Result{}, err
 		} else {
-			// update application pod
-			if err = r.Update(ctx, found); err != nil {
-				found.Spec.Template.Spec.Containers[0].Image = currentappVersion
-				logic.Spec.AppImage = currentappVersion
+
+			fmt.Println("pod updating...")
+
+			// apply image to container
+			patch := client.MergeFrom(found.DeepCopy())
+			found.Spec.Template.Spec.Containers[0].Image = logic.Spec.AppImage
+			fmt.Println("found updated image before patch : ", found.Spec.Template.Spec.Containers[0].Image)
+			err = r.Patch(ctx, found, patch)
+			if err != nil {
+				panic(err.Error())
+			}
+			fmt.Println("found updated image after patch : ", found.Spec.Template.Spec.Containers[0].Image)
+			if err != nil {
+				fmt.Println("patch update error")
+
 				// downgrade database
 				_, err := db.Query("call downgradeVersion(?)", currentappVersion)
 				if err != nil {
@@ -134,13 +145,17 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 				}
 				// downgrade app
 				patch := client.MergeFrom(found.DeepCopy())
+				found.Spec.Template.Spec.Containers[0].Image = currentappVersion
+				logic.Spec.AppImage = currentappVersion
 				err = r.Patch(ctx, found, patch)
 				if err != nil {
 					fmt.Println("Application Downgrade Error ", err)
 				}
+				fmt.Println("Patch error reconsile")
 				return ctrl.Result{}, err
 			} else {
 
+				fmt.Println("Mergin...")
 				patch := client.MergeFrom(found.DeepCopy())
 				found.Spec.Template.Spec.Containers[1].Image = logic.Spec.SchemaChangeApplyImage
 				err := r.Patch(ctx, found, patch)
@@ -160,8 +175,9 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	}
 
 	if found.Spec.Template.Spec.Containers[1].Image != logic.Spec.DefaultSchemaImage {
+		patch := client.MergeFrom(found.DeepCopy())
 		found.Spec.Template.Spec.Containers[1].Image = logic.Spec.DefaultSchemaImage
-		if err = r.Update(ctx, found); err != nil {
+		if err = r.Patch(ctx, found, patch); err != nil {
 			return ctrl.Result{Requeue: true}, nil
 		}
 	}
