@@ -1,20 +1,20 @@
 <mxfile>
     <diagram id="57YuRDvRVl7fnGDnGzmC" name="Page-1">
-        <mxGraphModel dx="1102" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="4681" math="0" shadow="0">
+        <mxGraphModel dx="1350" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="4681" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="3" value="" style="shape=umlLifeline;participant=umlActor;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;size=30;shadow=1;" parent="1" vertex="1">
-                    <mxGeometry x="50" y="50" width="30" height="2110" as="geometry"/>
+                    <mxGeometry x="50" y="50" width="30" height="2790" as="geometry"/>
                 </mxCell>
                 <mxCell id="5" value="Actor" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="3" vertex="1">
                     <mxGeometry x="-5" y="30" width="40" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="6" value="API Server" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
-                    <mxGeometry x="180" y="40" width="100" height="2120" as="geometry"/>
+                    <mxGeometry x="180" y="40" width="100" height="2800" as="geometry"/>
                 </mxCell>
                 <mxCell id="7" value="Etcd" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
-                    <mxGeometry x="380" y="40" width="100" height="2120" as="geometry"/>
+                    <mxGeometry x="380" y="40" width="100" height="2800" as="geometry"/>
                 </mxCell>
                 <mxCell id="24" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="7" vertex="1">
                     <mxGeometry x="45" y="270" width="10" height="40" as="geometry"/>
@@ -23,16 +23,16 @@
                     <mxGeometry x="45" y="550" width="10" height="50" as="geometry"/>
                 </mxCell>
                 <mxCell id="9" value="Controller" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
-                    <mxGeometry x="780" y="40" width="100" height="2120" as="geometry"/>
+                    <mxGeometry x="780" y="40" width="100" height="2800" as="geometry"/>
                 </mxCell>
                 <mxCell id="10" value="Kubelet" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
-                    <mxGeometry x="980" y="40" width="100" height="2120" as="geometry"/>
+                    <mxGeometry x="980" y="40" width="100" height="2800" as="geometry"/>
                 </mxCell>
                 <mxCell id="36" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="10" vertex="1">
                     <mxGeometry x="45" y="390" width="10" height="260" as="geometry"/>
                 </mxCell>
                 <mxCell id="11" value="Container" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
-                    <mxGeometry x="1180" y="40" width="100" height="2120" as="geometry"/>
+                    <mxGeometry x="1180" y="40" width="100" height="2800" as="geometry"/>
                 </mxCell>
                 <mxCell id="40" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="11" vertex="1">
                     <mxGeometry x="45" y="425" width="10" height="65" as="geometry"/>
@@ -47,7 +47,7 @@
                     <mxGeometry x="225" y="140" width="10" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="15" value="Shedular" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;shadow=1;" parent="1" vertex="1">
-                    <mxGeometry x="580" y="40" width="100" height="2120" as="geometry"/>
+                    <mxGeometry x="580" y="40" width="100" height="2800" as="geometry"/>
                 </mxCell>
                 <mxCell id="16" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
                     <mxGeometry x="425" y="150" width="10" height="50" as="geometry"/>
@@ -349,8 +349,8 @@
                         <mxPoint x="240" y="1646" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="100" value="Bind the epf with side car pod" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="1" vertex="1">
-                    <mxGeometry x="319" y="1626" width="170" height="20" as="geometry"/>
+                <mxCell id="100" value="Bind the epf with Default Schema pod" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="294" y="1626" width="220" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="101" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" target="96" edge="1">
                     <mxGeometry width="160" relative="1" as="geometry">
@@ -389,8 +389,8 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="108" value="watch API Server (Bound side car pod" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
-                    <mxGeometry x="508" y="1792" width="220" height="20" as="geometry"/>
+                <mxCell id="108" value="watch API Server (Bound Default Schema with pod)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="473" y="1792" width="290" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="109" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" parent="1" edge="1">
                     <mxGeometry width="160" relative="1" as="geometry">
@@ -398,8 +398,8 @@
                         <mxPoint x="1221" y="1844" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="110" value="Docker run &lt;br&gt;for pull&amp;nbsp;sidecar image" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
-                    <mxGeometry x="1066" y="1807" width="130" height="30" as="geometry"/>
+                <mxCell id="110" value="Docker run &lt;br&gt;for pull Default Schema image" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="1041" y="1807" width="180" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="111" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="1" edge="1">
                     <mxGeometry x="0.271" relative="1" as="geometry">
@@ -446,8 +446,132 @@
                 <mxCell id="118" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" parent="1" vertex="1">
                     <mxGeometry x="1025" y="1797" width="10" height="260" as="geometry"/>
                 </mxCell>
-                <mxCell id="119" value="Inject the sidecar into the EPF&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
-                    <mxGeometry x="390" y="1540" width="180" height="20" as="geometry"/>
+                <mxCell id="119" value="Deploy Defualt Schema&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="1540" width="140" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="148" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" edge="1" parent="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="823" y="2183" as="sourcePoint"/>
+                        <mxPoint x="230.5" y="2183" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="149" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" vertex="1" parent="1">
+                    <mxGeometry x="426" y="2292" width="10" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="150" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" vertex="1" parent="1">
+                    <mxGeometry x="626" y="2222" width="10" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="151" value="watch API server for new deployment" style="html=1;verticalAlign=bottom;startArrow=oval;endArrow=block;startSize=8;" edge="1" parent="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="235.5" y="2225" as="sourcePoint"/>
+                        <mxPoint x="626" y="2225" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="152" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" edge="1" parent="1" target="6">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="626" y="2261.5" as="sourcePoint"/>
+                        <mxPoint x="241" y="2262" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="153" value="Bind the epf with side car pod" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" vertex="1" parent="1">
+                    <mxGeometry x="320" y="2242" width="170" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="154" value="" style="endArrow=open;endFill=1;endSize=12;html=1;exitX=0.5;exitY=0.806;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" target="149" source="6">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="236" y="2296" as="sourcePoint"/>
+                        <mxPoint x="421" y="2296" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="155" value="write&amp;nbsp;&amp;nbsp;" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;shadow=1;" vertex="1" parent="1">
+                    <mxGeometry x="302" y="2277" width="50" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="156" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1" target="6">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="426" y="2329" as="sourcePoint"/>
+                        <mxPoint x="236" y="2329" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="157" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+                    <mxGeometry x="0.2051" relative="1" as="geometry">
+                        <mxPoint x="236" y="2373" as="sourcePoint"/>
+                        <mxPoint x="626" y="2373" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="158" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" vertex="1" parent="1">
+                    <mxGeometry x="427" y="2578" width="10" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="159" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" vertex="1" parent="1">
+                    <mxGeometry x="1227" y="2453" width="10" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="160" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" edge="1" parent="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="231.5" y="2428" as="sourcePoint"/>
+                        <mxPoint x="1025" y="2428" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="692" y="2428"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="161" value="watch API Server (Bound side car pod" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+                    <mxGeometry x="509" y="2408" width="220" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="162" value="" style="endArrow=open;endFill=1;endSize=12;html=1;entryX=0.1;entryY=0.169;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1.1;exitY=0.196;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="171" target="159">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="1037" y="2458" as="sourcePoint"/>
+                        <mxPoint x="1220" y="2460" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="163" value="Docker run &lt;br&gt;for pull&amp;nbsp;sidecar image" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+                    <mxGeometry x="1067" y="2423" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="164" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+                    <mxGeometry x="0.271" relative="1" as="geometry">
+                        <mxPoint x="1169" y="2508" as="sourcePoint"/>
+                        <mxPoint x="1038.5" y="2508" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="1232" y="2508"/>
+                            <mxPoint x="1169" y="2508"/>
+                            <mxPoint x="1119" y="2508"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="165" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" vertex="1" parent="1">
+                    <mxGeometry x="227" y="2542" width="10" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="166" value="" style="endArrow=open;endFill=1;endSize=12;html=1;" edge="1" parent="1">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="1026" y="2548" as="sourcePoint"/>
+                        <mxPoint x="242" y="2551" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="167" value="update pod status&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+                    <mxGeometry x="529" y="2525" width="110" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="168" value="write status&amp;nbsp; = runing&amp;nbsp;" style="html=1;verticalAlign=bottom;endArrow=block;entryX=0;entryY=0;" edge="1" parent="1">
+                    <mxGeometry x="-0.0162" relative="1" as="geometry">
+                        <mxPoint x="241" y="2585" as="sourcePoint"/>
+                        <mxPoint x="426" y="2585" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="169" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.95;" edge="1" parent="1" source="158">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="242" y="2626" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="170" value="ok" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;entryX=0;entryY=0.981;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="171">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="236.5" y="2668" as="sourcePoint"/>
+                        <mxPoint x="1020" y="2668" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="171" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;shadow=1;" vertex="1" parent="1">
+                    <mxGeometry x="1026" y="2413" width="10" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="172" value="Inject the sidecar into the EPF&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+                    <mxGeometry x="391" y="2156" width="180" height="20" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
