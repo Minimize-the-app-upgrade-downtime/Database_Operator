@@ -83,6 +83,11 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	//service
 	r.serviceFunc(ctx, req, logic)
 
+	_, err = http.Get("http://34.95.82.187/cluster_Reconsile_Enable")
+		if err != nil {
+			panic(err.Error())
+		}
+
 	// check correct image deploy in the cluster.
 	found := &appsv1.Deployment{}
 	r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found)
@@ -94,7 +99,7 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		currentappVersion := found.Spec.Template.Spec.Containers[0].Image
 
 		// request store in a queue
-		_, err := http.Get("http://34.70.130.195:30007/cluster_Reconsile_Enable")
+		_, err := http.Get("http://34.95.82.187/cluster_Reconsile_Enable")
 		if err != nil {
 			fmt.Println("con. error :", err)
 		}
@@ -168,7 +173,7 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		log.Info("Database and app Successfully Update.")
 
 		// requst pop and give the cluster. cluster is working properly
-		http.Get("http://34.70.130.195:30007/cluster_Reconsile_Disable")
+		http.Get("http://34.95.82.187/cluster_Reconsile_Disable")
 		log.Info("Requst pop in the Queue. Clsuter is working properly.")
 
 		return ctrl.Result{RequeueAfter: time.Second * 10}, nil
