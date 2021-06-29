@@ -34,15 +34,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
 
+	"database/sql"
+	databaselogicv1alpha1 "github.com/Minimize-the-app-upgrade-downtime/Database_Operator/api/v1alpha1"
+	_ "github.com/go-sql-driver/mysql"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
-	"database/sql"
-
-	_ "github.com/go-sql-driver/mysql"
-
-	databaselogicv1alpha1 "github.com/Minimize-the-app-upgrade-downtime/Database_Operator/api/v1alpha1"
 )
 
 // LogicReconciler reconciles a Logic object
@@ -83,11 +80,9 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	//service
 	r.serviceFunc(ctx, req, logic)
 
-	_, err = http.Get("http://34.95.82.187/cluster_Reconsile_Enable")
-		if err != nil {
-			panic(err.Error())
-		}
-
+	resp, e := http.Get("http://_proxy._tcp.logic-sample.default.svc.cluster.local/updateStarted")
+	fmt.Println("resp : ", resp)
+	fmt.Println("e : ", e)
 	// check correct image deploy in the cluster.
 	found := &appsv1.Deployment{}
 	r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found)
@@ -99,15 +94,15 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		currentappVersion := found.Spec.Template.Spec.Containers[0].Image
 
 		// request store in a queue
-		_, err := http.Get("http://34.95.82.187/cluster_Reconsile_Enable")
+		_, err := http.Get("http://34.95.82.187/updateStarted")
 		if err != nil {
 			fmt.Println("con. error :", err)
 		}
 
 		log.Info("Requst store in the Queue.")
 
-		log.Info("Database Updating .....")
-		time.Sleep(30 * time.Second)
+		log.Info("wait 7s Database Updating .....")
+		time.Sleep(10 * time.Second)
 		// open mysql connection
 		db, err := sql.Open("mysql", "u8il24jxufb4n4ty:t5z5jvsyolrqhn9k@tcp(jhdjjtqo9w5bzq2t.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306)/m0ky8hn32ov17miq")
 		if err != nil {
@@ -157,7 +152,7 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 					fmt.Println("Application Downgrade Error ", err)
 				}
 				fmt.Println("Patch error reconsile")
-				return ctrl.Result{}, err
+				//return ctrl.Result{}, err
 			} else {
 
 				fmt.Println("Mergin...")
@@ -173,21 +168,22 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		log.Info("Database and app Successfully Update.")
 
 		// requst pop and give the cluster. cluster is working properly
-		http.Get("http://34.95.82.187/cluster_Reconsile_Disable")
+		http.Get("http://34.95.82.187/updateFinished")
 		log.Info("Requst pop in the Queue. Clsuter is working properly.")
 
-		return ctrl.Result{RequeueAfter: time.Second * 10}, nil
+		//return ctrl.Result{RequeueAfter: time.Second * 5}, nil
 	}
 
 	if found.Spec.Template.Spec.Containers[1].Image != logic.Spec.DefaultSchemaImage {
 		patch := client.MergeFrom(found.DeepCopy())
 		found.Spec.Template.Spec.Containers[1].Image = logic.Spec.DefaultSchemaImage
 		if err = r.Patch(ctx, found, patch); err != nil {
-			return ctrl.Result{Requeue: true}, nil
+			fmt.Println("defaut add error ", err)
+			//return ctrl.Result{Requeue: true}, nil
 		}
 	}
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: time.Second * 65}, nil
 }
 
 // watch the resource
