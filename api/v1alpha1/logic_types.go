@@ -29,8 +29,11 @@ type LogicSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 	// Replica count of the DatabaseLogic.
 	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=10
-	Size int32 `json:"size,omitempty"`
+	// +kubebuilder:validation:Maximum=3
+	AppReplica int32 `json:"appReplica,omitempty"`
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=2
+	ProxyReplica int32 `json:"proxyReplica,omitempty"`
 	// EPF application version.
 	// Default value "<empty>".
 	AppVersion string `json:"appVersion,omitempty"`
@@ -39,26 +42,28 @@ type LogicSpec struct {
 	DatabaseVersion string `json:"databaseVersion,omitempty"`
 	// Uses the EPF image for the deployment.
 	// Default value "<empty>".
-	AppImage string `json:"appimage,omitempty"`
+	AppImage string `json:"appImage,omitempty"`
 	//Use the App name Image identyfy the app
 	// Default value "<empty>".
-	AppName string `json:"appname,omitempty"`
+	AppName string `json:"appName,omitempty"`
 	// Uses the proxy deployment.(Go proxy)
 	// Default value "<empty>".
-	SideCarImage string `json:"sideCarImage,omitempty"`
+	ProxyImage string `json:"proxyImage,omitempty"`
 	// Uses the proxy deploment for proxy name
 	// Default value "<empty>".
-	SideCarName string `json:"sideCarName,omitempty"`
+	ProxyName string `json:"proxyName,omitempty"`
 	// schema changes apply for reqest
 	// Default value "<empty>"
-	SchemaChangeApplyName string `json:"schemaChangeApplyName,omitempty"`
+	SchemaCovertorImage string `json:"schemaCovertorImage,omitempty"`
 	// schema changes apply for reqest
 	// Default value "<empty>"
-	SchemaChangeApplyImage string `json:"schemaChangeApplyImage,omitempty"`
+	SchemaCovertorName string `json:"schemaCovertorName,omitempty"`
 	// Default schema changes apply.
-	// current version database schema
+	// current version database apply schema use for failure
 	// Default value "<empty>".
 	DefaultSchemaImage string `json:"defaultSchemaImage,omitempty"`
+	// database update expected time default time is 1 min
+	ExpectedTime int `json:"expectedTime,omitempty"`
 }
 
 // LogicStatus defines the observed state of Logic

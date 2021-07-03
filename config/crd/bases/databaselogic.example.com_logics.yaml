@@ -36,42 +36,50 @@ spec:
         spec:
           description: LogicSpec defines the desired state of Logic
           properties:
-            appVersion:
-              description: EPF application version. Default value "<empty>".
-              type: string
-            appimage:
+            appImage:
               description: Uses the EPF image for the deployment. Default value "<empty>".
               type: string
-            appname:
+            appName:
               description: Use the App name Image identyfy the app Default value "<empty>".
+              type: string
+            appReplica:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "make" to regenerate code after modifying this file
+                Replica count of the DatabaseLogic.'
+              format: int32
+              maximum: 3
+              minimum: 1
+              type: integer
+            appVersion:
+              description: EPF application version. Default value "<empty>".
               type: string
             databaseVersion:
               description: EPF Database version. Default value "<empty>".
               type: string
             defaultSchemaImage:
               description: Default schema changes apply. current version database
-                schema Default value "<empty>".
+                apply schema use for failure Default value "<empty>".
               type: string
-            schemaChangeApplyImage:
-              description: schema changes apply for reqest Default value "<empty>"
-              type: string
-            schemaChangeApplyName:
-              description: schema changes apply for reqest Default value "<empty>"
-              type: string
-            sideCarImage:
+            expectedTime:
+              description: database update expected time default time is 1 min
+              type: integer
+            proxyImage:
               description: Uses the proxy deployment.(Go proxy) Default value "<empty>".
               type: string
-            sideCarName:
+            proxyName:
               description: Uses the proxy deploment for proxy name Default value "<empty>".
               type: string
-            size:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "make" to regenerate code after modifying this file
-                Replica count of the DatabaseLogic.'
+            proxyReplica:
               format: int32
-              maximum: 10
+              maximum: 2
               minimum: 1
               type: integer
+            schemaCovertorImage:
+              description: schema changes apply for reqest Default value "<empty>"
+              type: string
+            schemaCovertorName:
+              description: schema changes apply for reqest Default value "<empty>"
+              type: string
           type: object
         status:
           description: LogicStatus defines the observed state of Logic
