@@ -18,23 +18,25 @@ package controllers
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/prometheus/common/log"
+	//"github.com/gobuffalo/flect/name"
+	//"github.com/prometheus/common/log"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	intstr "k8s.io/apimachinery/pkg/util/intstr"
+
+	//intstr "k8s.io/apimachinery/pkg/util/intstr"
 
 	"database/sql"
+
 	databaselogicv1alpha1 "github.com/Minimize-the-app-upgrade-downtime/Database_Operator/api/v1alpha1"
 	_ "github.com/go-sql-driver/mysql"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -58,132 +60,43 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 	log := r.Log.WithValues("logic", req.NamespacedName)
 
-	// get the Logic
-	logic, err := r.getLogicAPI(ctx, req)
+	// check the API
+	logic := &databaselogicv1alpha1.Logic{}
+	err := r.Get(ctx, req.NamespacedName, logic)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			log.Info("Logic resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "Failed to get Logic")
-		return ctrl.Result{}, err
+		log.Error(err, " : Fail to get Logic")
 	}
-
-	// print Logic API Value
-	r.logicAPIValuePrint(logic)
-
-	// Create deploment
-	r.deploymentFunc(ctx, req, logic)
-
-	// config map
-	r.configMapFunc(ctx, req, logic)
-	//service
-	r.serviceFunc(ctx, req, logic)
-
-	resp, e := http.Get("http://_proxy._tcp.logic-sample.default.svc.cluster.local/updateStarted")
-	fmt.Println("resp : ", resp)
-	fmt.Println("e : ", e)
-	// check correct image deploy in the cluster.
-	found := &appsv1.Deployment{}
-	r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found)
-
-	// check image version
-	if found.Spec.Template.Spec.Containers[0].Image != logic.Spec.AppImage {
-
-		// cureent application version
-		currentappVersion := found.Spec.Template.Spec.Containers[0].Image
-
-		// request store in a queue
-		_, err := http.Get("http://34.95.82.187/updateStarted")
-		if err != nil {
-			fmt.Println("con. error :", err)
-		}
-
-		log.Info("Requst store in the Queue.")
-
-		log.Info("wait 7s Database Updating .....")
-		time.Sleep(10 * time.Second)
-		// open mysql connection
-		db, err := sql.Open("mysql", "u8il24jxufb4n4ty:t5z5jvsyolrqhn9k@tcp(jhdjjtqo9w5bzq2t.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306)/m0ky8hn32ov17miq")
-		if err != nil {
-			panic(err.Error())
-		}
-		defer db.Close() // close connection
-		// call version update sp
-		_, err = db.Query("call updateVersion(?,?)", logic.Spec.AppVersion, logic.Spec.DatabaseVersion)
-		if err != nil {
-			// chanege the CRD
-			logic.Spec.AppImage = currentappVersion
-			// downgrade database
-			_, err := db.Query("call downgradeVersion(?)", currentappVersion)
-			if err != nil {
-				//panic(err.Error())
-				fmt.Println("db downgrade error : ", err)
-			}
-			return ctrl.Result{}, err
-		} else {
-
-			fmt.Println("pod updating...")
-
-			// apply image to container
-			patch := client.MergeFrom(found.DeepCopy())
-			found.Spec.Template.Spec.Containers[0].Image = logic.Spec.AppImage
-			fmt.Println("found updated image before patch : ", found.Spec.Template.Spec.Containers[0].Image)
-			err = r.Patch(ctx, found, patch)
-			if err != nil {
-				panic(err.Error())
-			}
-			fmt.Println("found updated image after patch : ", found.Spec.Template.Spec.Containers[0].Image)
-			if err != nil {
-				fmt.Println("patch update error")
-
-				// downgrade database
-				_, err := db.Query("call downgradeVersion(?)", currentappVersion)
-				if err != nil {
-					// panic(err.Error())
-					fmt.Println("db downgrade error : ", err)
-				}
-				// downgrade app
-				patch := client.MergeFrom(found.DeepCopy())
-				found.Spec.Template.Spec.Containers[0].Image = currentappVersion
-				logic.Spec.AppImage = currentappVersion
-				err = r.Patch(ctx, found, patch)
-				if err != nil {
-					fmt.Println("Application Downgrade Error ", err)
-				}
-				fmt.Println("Patch error reconsile")
-				//return ctrl.Result{}, err
-			} else {
-
-				fmt.Println("Mergin...")
-				patch := client.MergeFrom(found.DeepCopy())
-				found.Spec.Template.Spec.Containers[1].Image = logic.Spec.SchemaChangeApplyImage
-				err := r.Patch(ctx, found, patch)
-				if err != nil {
-					fmt.Println("Schema change apply error : ", err)
-				}
-			}
-		}
-
-		log.Info("Database and app Successfully Update.")
-
-		// requst pop and give the cluster. cluster is working properly
-		http.Get("http://34.95.82.187/updateFinished")
-		log.Info("Requst pop in the Queue. Clsuter is working properly.")
-
-		//return ctrl.Result{RequeueAfter: time.Second * 5}, nil
+	// create deployment
+	err = r.deploymentFunc(ctx, req, logic)
+	if err != nil {
+		log.Error(err, "App , proxy, schema converter Deployment failed.")
+	} else {
+		log.Info("Deployment Succesfully !!..")
 	}
-
-	if found.Spec.Template.Spec.Containers[1].Image != logic.Spec.DefaultSchemaImage {
-		patch := client.MergeFrom(found.DeepCopy())
-		found.Spec.Template.Spec.Containers[1].Image = logic.Spec.DefaultSchemaImage
-		if err = r.Patch(ctx, found, patch); err != nil {
-			fmt.Println("defaut add error ", err)
-			//return ctrl.Result{Requeue: true}, nil
+	// create service
+	err = r.serviceFunc(ctx, req, logic)
+	if err != nil {
+		log.Error(err, "App , proxy  Service failed.")
+	} else {
+		log.Info("Service Succesfully !!..")
+	}
+	// handle update
+	dep := &appsv1.Deployment{}
+	err = r.Get(ctx, types.NamespacedName{Name: "app-dep", Namespace: logic.Namespace}, dep)
+	if err != nil {
+		log.Error(err, "404 , Deployment not found!!")
+	}
+	if dep.Spec.Template.Spec.Containers[0].Image != logic.Spec.AppImage {
+		err = r.UpdataApp(dep, logic)
+		if err != nil {
+			log.Error(err, "Application update error!!")
 		}
 	}
-
-	return ctrl.Result{RequeueAfter: time.Second * 65}, nil
+	return ctrl.Result{}, nil
 }
 
 // watch the resource
@@ -194,252 +107,300 @@ func (r *LogicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-// Check Logic API
-func (r *LogicReconciler) getLogicAPI(ctx context.Context, req ctrl.Request) (*databaselogicv1alpha1.Logic, error) {
+func (r *LogicReconciler) UpdataApp(dep *appsv1.Deployment, logic *databaselogicv1alpha1.Logic) error {
 
-	logic := &databaselogicv1alpha1.Logic{}
-	err := r.Get(ctx, req.NamespacedName, logic)
-	return logic, err
-}
-
-// Print logic API
-func (r *LogicReconciler) logicAPIValuePrint(l *databaselogicv1alpha1.Logic) {
-
-	log := r.Log.WithName("Logic CRD : ")
-	fmt.Println()
-	fmt.Println("Print Logic Resource Values : ")
-	log.Info("Size             : ", " size             : ", l.Spec.Size)
-	log.Info("AppVersion       : ", " AppVersion       : ", l.Spec.AppVersion)
-	log.Info("Database Version : ", " Database Version : ", l.Spec.DatabaseVersion)
-	log.Info("Stutus avil.rep  : ", " Stutus avila.rep : ", l.Status.AvailableReplicas)
-	log.Info("App Image Name   : ", " App Image Name   : ", l.Spec.AppName)
-	log.Info("App Image & Ver  : ", " App Image & Ver  : ", l.Spec.AppImage)
-	log.Info("SideCar Name     : ", " SideCar Name     : ", l.Spec.SideCarName)
-	log.Info("SideCar Image&Ver: ", " SideCar Image&Ver: ", l.Spec.SideCarImage)
-	log.Info("Sch.chan Name    : ", " Sch.chan  Name   : ", l.Spec.SchemaChangeApplyName)
-	log.Info("sch.cha Image&Ver: ", " sch.cha Image&Ver: ", l.Spec.SchemaChangeApplyImage)
-	log.Info("Status pod name  : ", " Status pod name  : ", l.Status.PodNames)
-	log.Info("Name             : ", " Name             : ", l.Name)
-	log.Info("NameSpace        : ", " NameSpace        : ", l.Namespace)
-	fmt.Println()
-}
-
-// deployment
-func (r *LogicReconciler) deploymentFunc(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
-
-	found_dep := &appsv1.Deployment{}
-
-	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found_dep)
-
+	db, err := sql.Open("mysql", "u8il24jxufb4n4ty:t5z5jvsyolrqhn9k@tcp(jhdjjtqo9w5bzq2t.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306)/m0ky8hn32ov17miq")
 	if err != nil {
-
-		if errors.IsNotFound(err) {
-
-			// Define and create a new deployment for App.
-			dep := r.deploymentForApp(logic)
-			if err = r.Create(ctx, dep); err != nil {
-				log.Error("Deployment App create error :", err)
-				return ctrl.Result{}, err
-			}
-
-			log.Warn("App Deployment Requeue !")
-			return ctrl.Result{Requeue: true}, nil
-
-		} else {
-			log.Error("Deployment", err)
-			return ctrl.Result{}, err
-		}
+		r.Log.Error(err, "Database connection open error!!.")
+		return err
 	}
-	printDeployment(found_dep)
-	return ctrl.Result{}, nil
-}
-
-// print deployment pretty
-func printDeployment(dep *appsv1.Deployment) {
-	b, err := json.MarshalIndent(dep, "", "  ")
+	defer db.Close()
+	// store the request in the queue
+	_, err = http.Get("http://34.95.82.187/updateStarted")
 	if err != nil {
-		log.Error("Deployment Pretty Convert Error : ", err)
+		r.Log.Error(err, "Request is not stored in the queue.")
+		return err
 	}
-	fmt.Println()
-	fmt.Println("Deployment : \n", string(b))
+	// update database
+	downgradeAppVersion := dep.Spec.Template.Spec.Containers[0].Image
+	_, err = db.Query("call updateVersion(?,?)", logic.Spec.AppVersion, logic.Spec.DatabaseVersion)
+	if err != nil {
+		r.Log.Error(err, "Database Update error !!")
+		r.downgradeDB(downgradeAppVersion, db)
+		r.downgradePod(dep, logic, downgradeAppVersion)
+		r.stopRequestStore()
+		return err
+	}
+	time.Sleep(30 * time.Second)
+	r.Log.Info("Updating........................................")
+	// update application
+	dep.Spec.Template.Spec.Containers[0].Image = logic.Spec.AppImage
+	dep.Spec.Template.Spec.Containers[1].Image = logic.Spec.SchemaCovertorImage
+	ctx := context.TODO()
+	err = r.Update(ctx, dep)
+	if err != nil {
+		r.Log.Error(err, "Pod Update failure")
+		r.downgradeDB(downgradeAppVersion, db)
+		r.downgradePod(dep, logic, downgradeAppVersion)
+		r.stopRequestStore()
+		return err
+	}
+	r.stopRequestStore()
+
+	return err
 }
 
-// deploymentForApp returns a app Deployment object.
-func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *appsv1.Deployment {
-
-	replicas := m.Spec.Size // size of the replicas
-
-	dep := &appsv1.Deployment{
-
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Deployment",
-			APIVersion: "apps/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
-			Namespace: m.Namespace,
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: &replicas,
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": m.Name,
-				},
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": m.Name,
-					},
-				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{
-							Image: m.Spec.AppImage,
-							Name:  m.Spec.AppName,
-						},
-						{
-							Image: m.Spec.DefaultSchemaImage, // default current version schema
-							Name:  m.Spec.SchemaChangeApplyName,
-							Env: []corev1.EnvVar{{
-								Name:  "PORT",
-								Value: "50002",
-							}},
-						},
-						{
-							Image: m.Spec.SideCarImage,
-							Name:  m.Spec.SideCarName,
-							Env: []corev1.EnvVar{{
-								Name:  "PORT",
-								Value: "50000",
-							}},
-						},
-					},
-				},
-			},
-		},
+func (r *LogicReconciler) downgradePod(dep *appsv1.Deployment, logic *databaselogicv1alpha1.Logic, ver string) {
+	dep.Spec.Template.Spec.Containers[0].Image = ver
+	dep.Spec.Template.Spec.Containers[1].Image = logic.Spec.DefaultSchemaImage
+	ctx := context.TODO()
+	err := r.Update(ctx, dep)
+	if err != nil {
+		r.Log.Error(err, " App downgrade error!! ")
 	}
-
-	// Set App instance as the owner and controller.
-	// NOTE: calling SetControllerReference, and setting owner references in
-	// general, is important as it allows deleted objects to be garbage collected.
-	controllerutil.SetControllerReference(m, dep, r.Scheme)
-	return dep
 }
 
-// service for proxy
-func (r *LogicReconciler) serviceFunc(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
+// downgrade db version
+func (r *LogicReconciler) downgradeDB(ver string, db *sql.DB) {
+	_, err := db.Query("call downgradeVersion(?)", ver) // downgrade dataabase if failure
+	if err != nil {
+		r.Log.Error(err, "Database downgrade error !!")
+	}
+}
 
-	found_ser := &corev1.Service{}
-	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found_ser)
+// stop request store
+func (r *LogicReconciler) stopRequestStore() {
+	// store the request in the queue
+	_, err := http.Get("http://34.95.82.187/updateFinished")
+	if err != nil {
+		r.Log.Error(err, "Request Store Stop!!.")
+	}
+}
+
+func (r *LogicReconciler) serviceFunc(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) error {
+	check_ser := &corev1.Service{}
+	err := r.Get(ctx, types.NamespacedName{Name: "app-svc", Namespace: logic.Namespace}, check_ser)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			ser := r.serviceForApp(logic)
-			if err = r.Create(ctx, ser); err != nil {
-				log.Error("Service create error : ", err)
-				return ctrl.Result{}, err
+			svc := r.serviceForApp(logic)
+			if err := r.Create(ctx, svc); err != nil {
+				r.Log.Error(err, "App service create error !!.")
+				return err
 			}
-			log.Warn("Service Create Requeue!")
-			return ctrl.Result{Requeue: true}, nil
 		} else {
-			return ctrl.Result{}, err
+			return err
 		}
-
 	}
-	printService(found_ser)
-	return ctrl.Result{}, nil
-}
 
-// print Serviec pretty
-func printService(ser *corev1.Service) {
-	b, err := json.MarshalIndent(ser, "", "  ")
+	err = r.Get(ctx, types.NamespacedName{Name: "proxy-svc", Namespace: logic.Namespace}, check_ser)
 	if err != nil {
-		log.Error("Service Pretty Convert Error : ", err)
+		if errors.IsNotFound(err) {
+			svc := r.serviceForProxy(logic)
+			if err := r.Create(ctx, svc); err != nil {
+				r.Log.Error(err, "Proxy service create error !!.")
+				return err
+			}
+		} else {
+			return err
+		}
 	}
-	fmt.Println()
-	fmt.Println("Service : \n", string(b))
+	return err
 }
 
-// service yaml
 func (r *LogicReconciler) serviceForApp(m *databaselogicv1alpha1.Logic) *corev1.Service {
 
-	ser := &corev1.Service{
+	svc := &corev1.Service{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Service",
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
+			Name:      "app-svc",
 			Namespace: m.Namespace,
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: map[string]string{
-				"app": m.Name,
+				"app": "backend",
 			},
-			Type: "NodePort", // ServiceType : LoadBalancer,NodePort
-			Ports: []corev1.ServicePort{{
-				Protocol: "TCP",
-				Port:     80,
-				NodePort: 30007,
-				TargetPort: intstr.IntOrString{
-					IntVal: 50000,
+			Ports: []corev1.ServicePort{
+				{
+					Protocol:   "TCP",
+					Name:       "app-port",
+					Port:       3000,
+					TargetPort: intstr.IntOrString{IntVal: 3000},
 				},
-			}},
+				{
+					Protocol:   "TCP",
+					Name:       "schema-port",
+					Port:       50002,
+					TargetPort: intstr.IntOrString{IntVal: 50002},
+				},
+			},
 		},
 	}
-	controllerutil.SetControllerReference(m, ser, r.Scheme)
-	return ser
+	controllerutil.SetControllerReference(m, svc, r.Scheme)
+	return svc
 }
 
-func (r *LogicReconciler) configMapFunc(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) (ctrl.Result, error) {
+func (r *LogicReconciler) serviceForProxy(m *databaselogicv1alpha1.Logic) *corev1.Service {
 
-	found_config := &corev1.ConfigMap{}
-	err := r.Get(ctx, types.NamespacedName{Name: logic.Name, Namespace: logic.Namespace}, found_config)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			con := r.configMapForApp(logic)
-			if err = r.Create(ctx, con); err != nil {
-				log.Error("Configmap create error : ", err)
-				return ctrl.Result{}, err
-			}
-
-			log.Warn("Config Map  Requeue!")
-			return ctrl.Result{Requeue: true}, nil
-		} else {
-			return ctrl.Result{}, err
-		}
-
-	}
-	printConfigMap(found_config)
-	return ctrl.Result{}, nil
-}
-
-// print ConfigMap pretty
-func printConfigMap(con *corev1.ConfigMap) {
-	b, err := json.MarshalIndent(con, "", "  ")
-	if err != nil {
-		log.Error("ConfigMap Pretty Convert Error : ", err)
-	}
-	fmt.Println()
-	fmt.Println("ConfigMap : \n", string(b))
-}
-
-// config yaml
-func (r *LogicReconciler) configMapForApp(m *databaselogicv1alpha1.Logic) *corev1.ConfigMap {
-
-	con := &corev1.ConfigMap{
+	svc := &corev1.Service{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "ConfigMap",
+			Kind:       "Service",
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
+			Name:      "proxy-svc",
 			Namespace: m.Namespace,
 		},
-		Data: map[string]string{
-			"epfDetails.conf": "server { location / { proxy_pass http://localhost:3000; } location / { proxy_pass http://localhost:50002; }   }",
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{
+				"app": "proxy",
+			},
+			Type: "NodePort",
+			Ports: []corev1.ServicePort{
+				{
+					Name:       "proxy-port",
+					Port:       80,
+					NodePort:   30009,
+					Protocol:   "TCP",
+					TargetPort: intstr.IntOrString{IntVal: 50000},
+				},
+			},
 		},
 	}
-	controllerutil.SetControllerReference(m, con, r.Scheme)
-	return con
+	controllerutil.SetControllerReference(m, svc, r.Scheme)
+	return svc
+}
+
+func (r *LogicReconciler) deploymentFunc(ctx context.Context, req ctrl.Request, logic *databaselogicv1alpha1.Logic) error {
+
+	check_dep := appsv1.Deployment{}
+	err := r.Get(ctx, types.NamespacedName{Name: "app-dep", Namespace: logic.Namespace}, &check_dep)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			dep := r.deploymentForApp(logic)
+			if err = r.Create(ctx, dep); err != nil {
+				r.Log.Error(err, " Application deployment error ")
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	err = r.Get(ctx, types.NamespacedName{Name: "proxy-dep", Namespace: logic.Namespace}, &check_dep)
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			dep := r.deploymentForProxy(logic)
+			if err = r.Create(ctx, dep); err != nil {
+				r.Log.Error(err, " Proxy deployment error ")
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	return err
+}
+
+func (r *LogicReconciler) deploymentForApp(m *databaselogicv1alpha1.Logic) *appsv1.Deployment {
+
+	dep := &appsv1.Deployment{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Deployment",
+			APIVersion: "apps/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "app-dep",
+			Namespace: m.Namespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: &m.Spec.AppReplica,
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app": "backend",
+				},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"app": "backend",
+					},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  m.Spec.AppName,
+							Image: m.Spec.AppImage,
+							Ports: []corev1.ContainerPort{
+								{
+									Name:          "app-port",
+									ContainerPort: 3000,
+								},
+							},
+						},
+						{
+							Name:  m.Spec.SchemaCovertorName,
+							Image: m.Spec.DefaultSchemaImage,
+							Ports: []corev1.ContainerPort{
+								{
+									Name:          "schema-port",
+									ContainerPort: 50002,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	controllerutil.SetControllerReference(m, dep, r.Scheme)
+	return dep
+}
+
+func (r *LogicReconciler) deploymentForProxy(m *databaselogicv1alpha1.Logic) *appsv1.Deployment {
+
+	dep := &appsv1.Deployment{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Deployment",
+			APIVersion: "apps/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "proxy-dep",
+			Namespace: m.Namespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: &m.Spec.ProxyReplica,
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app": "proxy",
+				},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"app": "proxy",
+					},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  m.Spec.ProxyName,
+							Image: m.Spec.ProxyImage,
+							Ports: []corev1.ContainerPort{
+								{
+									Name:          "proxy-port",
+									ContainerPort: 50000,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	controllerutil.SetControllerReference(m, dep, r.Scheme)
+	return dep
 }

@@ -3,15 +3,17 @@ kind: Logic
 metadata:
   name: logic-sample
   labels:
-    app: printData
+    app: database-operator
 spec:
-  size: 1
-  appname: app
-  appimage: 2016csc044/app:v1
-  sideCarName: proxy
-  sideCarImage: 2016csc044/proxy:v1 #store request
-  schemaChangeApplyName: schema-converter
-  schemaChangeApplyImage: 2016csc044/schemaconverter:v1 #when update start its runnig
+  appReplica: 3
+  proxyReplica: 1
+  expectedTime: 1
+  appName: app
+  appImage: 2016csc044/app-test:v5 #5,6
+  proxyName: proxy
+  proxyImage: 2016csc044/proxy-test:v5 #store request
+  schemaCovertorName: schema-converter
+  schemaCovertorImage: 2016csc044/schemaconverter:v1 #when update start its runnig
   defaultSchemaImage: 2016csc044/defaultschema:v1 #default current version schema
   appVersion: v1_0_1
   databaseVersion: v1_0_1
