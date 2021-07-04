@@ -64,6 +64,8 @@ type LogicSpec struct {
 	DefaultSchemaImage string `json:"defaultSchemaImage,omitempty"`
 	// database update expected time default time is 1 min
 	ExpectedTime int `json:"expectedTime,omitempty"`
+	// cuurent db version
+	CurrnetDbVersion string `json:"currnetDbVersion,omitempty"`
 }
 
 // LogicStatus defines the observed state of Logic
