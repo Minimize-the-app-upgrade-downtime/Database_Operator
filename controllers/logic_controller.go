@@ -17,11 +17,13 @@ limitations under the License.
 package controllers
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/go-logr/logr"
 	"net/http"
 	"time"
-
-	"github.com/go-logr/logr"
 	//"github.com/gobuffalo/flect/name"
 	//"github.com/prometheus/common/log"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -94,6 +96,18 @@ func (r *LogicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		err = r.UpdataApp(dep, logic)
 		if err != nil {
 			log.Error(err, "Application update error!!")
+		} else {
+			log.Info("App & Database Updated Successfully !!")
+		}
+	}
+	// only db update
+	
+	if logic.Spec.DatabaseVersion != logic.Spec.CurrnetDbVersion {
+		err = r.UpdateDatabase(dep, logic)
+		if err != nil {
+			log.Error(err, "Database Update Error !!")
+		} else {
+			log.Info("Database Updated Successfully !!")
 		}
 	}
 	return ctrl.Result{}, nil
@@ -107,6 +121,39 @@ func (r *LogicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+func (r *LogicReconciler) UpdateDatabase(dep *appsv1.Deployment, logic *databaselogicv1alpha1.Logic) error {
+	db, err := sql.Open("mysql", "u8il24jxufb4n4ty:t5z5jvsyolrqhn9k@tcp(jhdjjtqo9w5bzq2t.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306)/m0ky8hn32ov17miq")
+	if err != nil {
+		r.Log.Error(err, "Database connection open error!!.")
+		return err
+	}
+	defer db.Close()
+	if logic.Spec.ExpectedTime > 0 {
+		r.expectedTimeUpdate(logic)
+	}
+	// store the request in the queue
+	_, err = http.Get("http://34.95.82.187/updateStarted")
+	if err != nil {
+		r.Log.Error(err, "Request is not stored in the queue.")
+		return err
+	}
+	// update database
+	downgradeAppVersion := dep.Spec.Template.Spec.Containers[0].Image
+	_, err = db.Query("call updateVersion(?,?)", logic.Spec.AppVersion, logic.Spec.DatabaseVersion)
+	if err != nil {
+		logic.Spec.DatabaseVersion = logic.Spec.CurrnetDbVersion
+		r.Log.Error(err, "Database Update error !!")
+		r.downgradeDB(downgradeAppVersion, db)
+		r.stopRequestStore()
+		return err
+	}
+	r.Log.Info("Updating........................................")
+	time.Sleep(30 * time.Second)
+	logic.Spec.CurrnetDbVersion = logic.Spec.DatabaseVersion
+	r.stopRequestStore()
+	return err
+}
+
 func (r *LogicReconciler) UpdataApp(dep *appsv1.Deployment, logic *databaselogicv1alpha1.Logic) error {
 
 	db, err := sql.Open("mysql", "u8il24jxufb4n4ty:t5z5jvsyolrqhn9k@tcp(jhdjjtqo9w5bzq2t.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306)/m0ky8hn32ov17miq")
@@ -115,6 +162,9 @@ func (r *LogicReconciler) UpdataApp(dep *appsv1.Deployment, logic *databaselogic
 		return err
 	}
 	defer db.Close()
+	if logic.Spec.ExpectedTime > 0 {
+		r.expectedTimeUpdate(logic)
+	}
 	// store the request in the queue
 	_, err = http.Get("http://34.95.82.187/updateStarted")
 	if err != nil {
@@ -126,13 +176,16 @@ func (r *LogicReconciler) UpdataApp(dep *appsv1.Deployment, logic *databaselogic
 	_, err = db.Query("call updateVersion(?,?)", logic.Spec.AppVersion, logic.Spec.DatabaseVersion)
 	if err != nil {
 		r.Log.Error(err, "Database Update error !!")
+		logic.Spec.DatabaseVersion = logic.Spec.CurrnetDbVersion
 		r.downgradeDB(downgradeAppVersion, db)
 		r.downgradePod(dep, logic, downgradeAppVersion)
 		r.stopRequestStore()
 		return err
 	}
-	time.Sleep(30 * time.Second)
+	logic.Spec.CurrnetDbVersion = logic.Spec.DatabaseVersion
 	r.Log.Info("Updating........................................")
+	time.Sleep(30 * time.Second)
+
 	// update application
 	dep.Spec.Template.Spec.Containers[0].Image = logic.Spec.AppImage
 	dep.Spec.Template.Spec.Containers[1].Image = logic.Spec.SchemaCovertorImage
@@ -148,6 +201,21 @@ func (r *LogicReconciler) UpdataApp(dep *appsv1.Deployment, logic *databaselogic
 	r.stopRequestStore()
 
 	return err
+}
+
+func (r *LogicReconciler) expectedTimeUpdate(logic *databaselogicv1alpha1.Logic) {
+	values := map[string]int{"etime": logic.Spec.ExpectedTime}
+	json_data, err := json.Marshal(values)
+	if err != nil {
+		r.Log.Error(err, " Json marshal error ")
+	}
+	resp, err := http.Post("http://34.95.82.187/expcedTime", "application/json", bytes.NewBuffer(json_data))
+	if err != nil {
+		r.Log.Error(err, "response encode error")
+	}
+	var res map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&res)
+	fmt.Println(res["json"])
 }
 
 func (r *LogicReconciler) downgradePod(dep *appsv1.Deployment, logic *databaselogicv1alpha1.Logic, ver string) {

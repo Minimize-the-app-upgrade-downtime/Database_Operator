@@ -53,6 +53,9 @@ spec:
             appVersion:
               description: EPF application version. Default value "<empty>".
               type: string
+            currnetDbVersion:
+              description: cuurent db version
+              type: string
             databaseVersion:
               description: EPF Database version. Default value "<empty>".
               type: string
